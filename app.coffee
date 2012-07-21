@@ -84,5 +84,20 @@ app.listen 8000, ->
 
 # Setup socket.io
 sio = io.listen app
+sio.set 'authorization', (data, accept) ->
+  # Only accept incoming sockets if we have a cookie
+  if not data.headers.cookie?
+    accept 'No cookies transmitted.', false  # Reject socket
+  else
+    data.cookie = cookie.parse data.headers.cookie
+    data.sid = data.cookie['connect.sid']
+    data.session_store = session_store
+    session_store.get data.sid, (err, session) ->
+      if err or not session? or not session.auth?
+        accept err, false  # Reject socket
+      else
+        data.session = new connect.middleware.session.Session data, session
+        accept null, true  # Accept socket
 sio.sockets.on 'connection', (socket) ->
-  console.log "Recieved socket connection!"
+  hs = socket.handshake
+  console.log "Socket from #{hs.session.auth.facebook.user.name}".red
