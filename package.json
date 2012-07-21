@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "express": "2.5.11",
-    "jade": "*"
+    "jade": "*",
+    "mongoose": "2.7.2"
   }
 }
