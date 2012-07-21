@@ -2,9 +2,8 @@ doctype 5
 html
   head
     title= title
-    script(src='http://local.host:8000/socket.io/socket.io.js')
+    script(src='/socket.io/socket.io.js')
     != css('style')
     != js('/js/jquery-1.7.2.min.js')
     != js('/js/client.js')
-  body
-    block content
+  body!= body

@@ -85,4 +85,4 @@ app.listen 8000, ->
 # Setup socket.io
 sio = io.listen app
 sio.sockets.on 'connection', (socket) ->
-  console.log "Recieved socket connection!".red
+  console.log "Recieved socket connection!"
