@@ -1,6 +1,7 @@
 # Greylocku!
 # TODO: get a name
 
+colors = require 'colors'
 connect = require 'connect'
 connect_assets = require 'connect-assets'
 cookie = require 'cookie'
@@ -26,10 +27,20 @@ app.configure ->
   app.use connect_assets()  # Serve compiled assets
   #app.use express.static(__dirname + '/public')
 
+# Dev/prod
 app.configure 'development', ->
+  app.use express.errorHandler({dumpExceptions: true, showStack: true})
+app.configure 'production', ->
   app.use express.errorHandler()
 
+# Routes
 app.get '/', routes.index
 
+# Setup web server
 app.listen app.get('port'), ->
   console.log "Express server listening on port #{app.get('port')}"
+
+# Setup socket.io
+sio = io.listen app
+sio.sockets.on 'connection', (socket) ->
+  console.log "Recieved socket connection!".red
