@@ -13,7 +13,6 @@ spawn_webworker = (handler) ->
     handler[event.data.command](event.data.data)
   return worker
 
-console.log = () ->
 worker_handler =
   log: (message) ->
     console.log 'WORKER SAYS', message
@@ -48,6 +47,7 @@ $ ->
       worker.compuciusSend 'start_map', {
         code: data.code
         chunk: data.data
+        data_type: data.data_type
         shard_count: data.num_shuffle_shards
       }
     else if data.type == 'reduce'
