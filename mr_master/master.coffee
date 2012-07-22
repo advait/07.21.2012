@@ -24,6 +24,9 @@ MRStates =
 # Master constants
 constants =
   R_JOB_QUEUE = 'job_queue'
+  R_PRESHUFFLE_CHUNK = 'preshuffle_chunk'
+  R_JOB_STATE = 'job_state'
+
 
 # Master class
 class exports.Master
@@ -35,6 +38,7 @@ class exports.Master
     @redis_client = redis.createClient()
     @state = MRStates.START
     @job = null
+    @num_map_chunks_done = 0
 
   startJob: () ->
     # Ensure correct state.
@@ -58,14 +62,68 @@ class exports.Master
           console.log err
           return
         @job = doc
-        @state = MRStates.MAP_DATA
+        @updateState MRStates.MAP_DATA
 
         @mapData()
 
   mapData: () ->
+    if (@state ! = MRStates.MAP_DATA)
+      console.log err
+      return
+
+    # Call mapChunk for each chunk
+    @num_map_chunks_done = 0
+    for i in @job.data.length
+      mapChunk i
+
+  # Each map chunk function is responsible for making sure that some client
+  # finishes mapping the chunk.
+  mapChunk: (chunk_id) ->
+    # Allocate a client.
+    @client_pool.pop (client) ->
+      dc_handler = () ->
+        console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
+        mapChunk chunk_id
+
+      client.on 'map_data_receive', (data) ->
+        # something
+
+      client.on 'done', (data) ->
+        # Remove all listeners set, returns the client back into the pool, and
+        # tells the mapper this chunk has finished.
+        @client.removeListener 'disconnect', dc_handler
+        @client.removeAllListeners 'done'
+        @client.removeAllListeners 'map_data_receive'
+        @client_pool.push client
+        @mapFinish()
+
+      client.on 'disconnect', dc_handler
+
+      # Tell the client to start the job
+      client.emit 'start_job', {
+        type: 'map'
+        code: @job.code
+        num_shuffle_shards: @job.shard_count
+        data_type: @job.data_type
+        data: @job.data[chunk_id]
+      }
+
+
+  mapFinish: () ->
+    @num_map_chunks_done += 1
+
+    console.log "Mappers finished: #{@num_map_chunks_done}".red
+    if (@num_map_chunks_done == @job.data.length)
+      @updateState PRE_SHUFFLE_DATA
+      @preshuffleData()
+
   preshuffleData: () ->
+
   done: () ->
 
-
-      
+  updateState: (newState) ->
+    @state = newState
+    r_key = "#{constants.R_JOB_STATE}:{@job._id}:state"
+    @redis_client.set r_key, @state
+    console.log "Job #{@job._id} new state: #{@state}".green
 
