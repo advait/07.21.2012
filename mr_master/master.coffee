@@ -59,7 +59,7 @@ class exports.Master
       console.log "Found job: '#{job_id}'".blue
       Job.findById job_id, (err, doc) =>
         if (err or not doc?)
-          console.log err
+          console.log 'error '+err
           return
 
         console.log "Found this job"

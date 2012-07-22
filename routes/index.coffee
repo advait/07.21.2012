@@ -23,10 +23,9 @@ exports.jobs = (req, res) ->
   models.Job.find {}, (err, jobs) ->
     if jobs.length == 0
       console.log 'couldnt find'.red
-    else
-      res.render 'jobs',
-        title: 'Jobs'
-        jobs: jobs
+    res.render 'jobs',
+      title: 'Jobs'
+      jobs: jobs
 
 exports.client = (req, res) ->
   res.render 'client',
@@ -85,8 +84,8 @@ exports.jobs_new_process = (req, res) ->
     if !err
       # success
       res.send 'success', 200
+      redis_client.rpush 'job_queue', String(new_job._id)
     else
       res.send 'failure', 400
       console.log err
-  redis_client.rpush 'job_queue', String(new_job._id)
 

@@ -21,7 +21,11 @@ block content
           div.job.pull-left(id=job._id, class=job.state)
             h3=job.name
             h4.state=job.state
-            input.knob(type='text', data-readonly='true', data-thickness='.15')
+            - if (job.state == 'done') {
+                input.knob(type='text', data-readonly='true', data-thickness='.15', value="100", data-max="100", data-fgColor="green")
+            - } else {
+                input.knob(type='text', data-readonly='true', data-thickness='.15')
+            - }
         - })
   div#results.modal.fade.hide
     div.modal-header
