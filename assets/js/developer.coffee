@@ -19,26 +19,26 @@ $ ->
           knob.val states.chunks_done
         knob.trigger 'change'
         knob.trigger 'configure',
-          'max': '10'
+          'max': states.chunks_total
           'fgColor': 'purple'
         knob.trigger 'change'
       # Pre shuffle phase
       if states.state == 3
         item.children('.state').text('pre-shuffling')
-        knob.val '100'
+        knob.val '4'
         knob.trigger 'change'
         knob.trigger 'configure',
-          'max': 100
+          'max': 10
           'fgColor': 'orange'
         knob.trigger 'change'
       # Reduce phase
       if states.state == 4
         item.children('.state').text('reducing')
-        if states.shads_done?
+        if states.shards_done?
           knob.val states.shards_done
         knob.trigger 'change'
         knob.trigger 'configure',
-          'max': 5
+          'max': states.shards_total
           'fgColor': 'blue'
         knob.trigger 'change'
       # Reduce phase

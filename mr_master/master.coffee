@@ -129,7 +129,11 @@ class exports.Master
   mapFinish: () ->
     @num_map_chunks_done += 1
 
-    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state, "chunks_done": @num_map_chunks_done}
+    @redis_client.publish "job:#{@job._id}", JSON.stringify {
+      "state": @state
+      "chunks_done": @num_map_chunks_done
+      "chunks_total": @job.data.length
+    }
     console.log "Mappers finished: #{@num_map_chunks_done}".red
     if (@num_map_chunks_done == @job.data.length)
       @updateState MRStates.PRE_SHUFFLE_DATA
@@ -209,7 +213,6 @@ class exports.Master
 
       socket.on 'disconnect', dc_handler
 
-      console.log 'three'.red
       tmp_store = "job:#{@job._id}:shard:#{shard_id}"
       @redis_client.lrange tmp_store, 0, -1, (err, shard) =>
         if (err)
@@ -225,7 +228,11 @@ class exports.Master
   shuffleReduceFinish: () ->
     @num_shards_done += 1
 
-    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state, "shards_done": @num_shards_done}
+    @redis_client.publish "job:#{@job._id}", JSON.stringify {
+      "state": @state
+      "shards_done": @num_shards_done
+      "shards_total": @job.shard_count
+    }
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == Number(@job.shard_count))
       @updateState MRStates.DONE
