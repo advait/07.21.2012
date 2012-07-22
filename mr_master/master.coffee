@@ -24,8 +24,6 @@ MRStates =
 # Master constants
 constants =
   R_JOB_QUEUE: 'job_queue'
-  R_PRESHUFFLE_CHUNK: 'preshuffle_chunk'
-  R_JOB_STATE: 'job_state'
 
 
 # Master class
@@ -81,26 +79,32 @@ class exports.Master
   mapChunk: (chunk_id) ->
     # Allocate a client.
     @client_pool.pop (client) =>
+      socket = client.socket
       dc_handler = () ->
         console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
         mapChunk chunk_id
 
-      client.on 'map_data_receive', (data) ->
-        # something
+      @redis_client.delete "job:#{@job._id}:chunk:#{chunk_id}:*"
 
-      client.on 'done', (data) ->
+      socket.on 'map_data_receive', (data) =>
+        # Get the shard id from data
+        tmp_store = "job:#{@job._id}:chunk:#{chunk_id}:#{data.shard_id}"
+        @redis_client.rpush tmp_store, [ data.key, data.value ]
+
+
+      socket.on 'done', (data) =>
         # Remove all listeners set, returns the client back into the pool, and
         # tells the mapper this chunk has finished.
-        @client.removeListener 'disconnect', dc_handler
-        @client.removeAllListeners 'done'
-        @client.removeAllListeners 'map_data_receive'
+        socket.removeListener 'disconnect', dc_handler
+        socket.removeAllListeners 'done'
+        socket.removeAllListeners 'map_data_receive'
         @client_pool.push client
         @mapFinish()
 
-      client.on 'disconnect', dc_handler
+      socket.on 'disconnect', dc_handler
 
-      # Tell the client to start the job
-      client.emit 'start_job', {
+      # Tell the client to start the job.
+      socket.emit 'start_job', {
         type: 'map'
         code: @job.code
         num_shuffle_shards: @job.shard_count
@@ -139,7 +143,7 @@ class exports.Master
 
   updateState: (newState) ->
     @state = newState
-    r_key = "#{constants.R_JOB_STATE}:{@job._id}:state"
+    r_key = "job:{@job._id}:state"
     @redis_client.set r_key, @state
     console.log "Job #{@job._id} new state: #{@state}".green
 
