@@ -14,7 +14,6 @@ $ ->
     socket.on id, (data) ->
       states = JSON.parse data
       window.states = states
-      console.log states
 
       # Change states
       if states.change? || cur_state == 0
@@ -48,7 +47,7 @@ $ ->
           when 5
             item.children('.state').text('done')
             knob.trigger 'configure',
-              'max': '5'
+              'max': '100'
               'fgColor': 'green'
 
       # Increment value
@@ -58,6 +57,8 @@ $ ->
             knob.val(states.done).trigger('change')
           when 4
             knob.val(states.done).trigger('change')
+          when 5
+            knob.val(100).trigger('change')
 
   $('.job').click (e) ->
     id = $(this).attr('id')

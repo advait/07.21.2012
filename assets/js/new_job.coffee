@@ -5,11 +5,13 @@ $ ->
     console.log code
 
     # Code doesn't have functions required
+    ###
     if code.indexOf('generateChunk(') == -1 or
        code.indexOf('generateMap(') == -1 or
        code.indexOf('generateReduction(') == -1
       $('#invalid').show()
       return
+    ###
 
     # Code passed validation
     $('#invalid').hide()

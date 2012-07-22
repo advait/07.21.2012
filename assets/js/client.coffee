@@ -47,8 +47,8 @@ $ ->
     num = Number(knob.val())
     num = (num+1) % 50
     knob.val num
-    console.log num
     knob.trigger 'change'
+    
   console.log "Hello world"
   url = getSocketServerURL()
   console.log url
