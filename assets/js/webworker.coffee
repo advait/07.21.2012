@@ -49,11 +49,20 @@ worker_handler =
   # Starts a map step!
   start_map: (o) ->
     code = o.code
-    chunk = o.chunk
+    chunk_parts = null
     self.shard_count = o.shard_count
-    # Load script
+    # Load and run script.
     clean_load code, 'map'
-    Compucius.map chunk  # Perform map
+
+    # Do seperate jobs for text and json.
+    if (o.data_type == 'text')
+      chunk_parts = o.chunk.split "\n"
+    else
+      chunk_parts = o.chunk
+
+    # Execute mapping.
+    for part in chunk_parts
+      Compucius.map part
     self.compuciusSend 'done_map'
 
   # Starts a reduce step!
