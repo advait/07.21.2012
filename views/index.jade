@@ -1,12 +1,12 @@
-h1= title
-p Welcome to #{title}
-if user
-  p
-    h2 Welcome #{user.name}!
-    ul
-      li user/fb id: #{user.id}
-      li user: #{user}
-  p
-    a(href="/logout") Logout
-else
-  a(href='/auth/facebook') Login
+// index.jade
+// Copyright 2012 Compucius
+
+extends layout
+
+block content
+  if everyauth.loggedIn
+    p
+      h2 Welcome #{everyauth.facebook.user.name}!
+      ul
+        li user/fb id: #{everyauth.facebook.user.id}
+        li user: #{JSON.stringify(everyauth.facebook.user)}
