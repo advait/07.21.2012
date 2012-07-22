@@ -43,7 +43,6 @@ exports.client = (req, res) ->
 
 exports.result = (req, res) ->
   models.Job.findById req.params.id, (err, doc) ->
-    console.log doc
     res.send {
       name: doc.name
       results: doc.results
