@@ -9,12 +9,11 @@ everyauth = require 'everyauth'
 express = require 'express'
 http = require 'http'
 io = require 'socket.io'
+readymade = require 'readymade'
 redis = require 'redis'
 
 models = require './models'
 routes = require './routes'
-readymade = require 'readymade'
-models = require './models'
 
 
 # Redis things
@@ -28,8 +27,10 @@ session_store = new RedisStore {client: redis_client}
 app = module.exports = express.createServer()
 
 # Setup everyauth facbeook
-#em = everyauth.everymodule
-#everyauth.everymodule.userPkey('_id')
+em = everyauth.everymodule
+em.findUserById (uid, callback) ->
+  console.log "FINDUSER".blue, uid
+  models.User.findById uid, callback
 fb = everyauth.facebook
 fb.appId '422148541157960'
 fb.appSecret '8e5f5afc2d8a3eacd20604b4c6047442'
@@ -45,15 +46,13 @@ fb.handleAuthCallbackError (req, res) ->
   # view notifying the user that their authentication failed and why.
   console.log 'FACBEOOK ERROR HAPPENED!'
 fb.findOrCreateUser (session, accessToken, accessTokExtra, fbUserMetadata) ->
-  console.log 'asldkfjads'
   promise = @Promise()
   # Check mongo for user
   models.User.findById Number(fbUserMetadata.id), (err, user) ->
-    console.log 'asdlkfjiowqr'
     if user
       # User found
-      console.log 'found'.green
-      return promise.fulfill user
+      console.log 'USER FOUND'.green, user
+      promise.fulfill user
     else
       # Insert user
       new_user = new models.User (
@@ -66,8 +65,8 @@ fb.findOrCreateUser (session, accessToken, accessTokExtra, fbUserMetadata) ->
       new_user.save (err) ->
         if !err
           # User add success
-          console.log 'made'.green
-          return promise.fulfill new_user
+          console.log 'USER INSERTED'.green, user
+          promise.fulfill new_user
         else
           console.log 'could not add user'.red
   return promise
