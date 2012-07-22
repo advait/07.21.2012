@@ -85,6 +85,7 @@ class exports.Master
     console.log "Job #{@job._id}: chunk #{chunk_id} mapping".blue
     # Allocate a client.
     @client_pool.pop (client) =>
+      console.log "Job #{@job._id}: chunk #{chunk_id} found client".green
       socket = client.socket
       dc_handler = () ->
         console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
@@ -138,6 +139,7 @@ class exports.Master
 
 
     console.log "PRESHUFFLING DATA!".red
+    num_finished = 0
     for x in [0..(@job.shard_count - 1)]
       @redis_client.del "job:#{@job._id}:shard:#{x}"
       all_values_for_shard = []
@@ -156,16 +158,25 @@ class exports.Master
                 if err?
                   console.log err
                   return
+
+            # Incremented the number finished and move on with that shard if
+            # you can.
+            num_finished += 1
+            if (num_finished != (@job.shard_count - 1) *  (@job.data.length - 1))
+              return
+
+
+            @updateState MRStates.SHUFFLE_REDUCE_DATA
+            @num_shards_done = 0
+            for z in [0..@job.shard_count - 1]
+              @shuffleReduceShard z
+
         func()
 
-    @updateState MRStates.SHUFFLE_REDUCE_DATA
-
-    @num_shards_done = 0
-    for i in [0..@job.shard_count - 1]
-      @shuffleReduceShard i
-
   shuffleReduceShard: (shard_id) ->
+    console.log "Job #{@job._id}: shard #{shard_id} reducing".blue
     @client_pool.pop (client) =>
+      console.log "Job #{@job._id}: shard #{shard_id} found client".green
       socket = client.socket
       dc_handler = () ->
         console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
