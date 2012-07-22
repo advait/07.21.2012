@@ -9,50 +9,55 @@ $ ->
     knob = $('#'+id+' .knob')
     socket = io.connect getSocketServerURL()
     socket.emit 'watch job', id
+    cur_state = 0
+
     socket.on id, (data) ->
       states = JSON.parse data
-      console.log states.state
-      # Mapping phase
-      if states.state == 2
-        item.children('.state').text('mapping')
-        if states.chunks_done?
-          knob.val states.chunks_done
-        knob.trigger 'change'
-        knob.trigger 'configure',
-          'max': states.chunks_total
-          'fgColor': 'purple'
-        knob.trigger 'change'
-      # Pre shuffle phase
-      if states.state == 3
-        item.children('.state').text('pre-shuffling')
-        knob.val '4'
-        knob.trigger 'change'
-        knob.trigger 'configure',
-          'max': 10
-          'fgColor': 'orange'
-        knob.trigger 'change'
-      # Reduce phase
-      if states.state == 4
-        item.children('.state').text('reducing')
-        if states.shards_done?
-          knob.val states.shards_done
-        knob.trigger 'change'
-        knob.trigger 'configure',
-          'max': states.shards_total
-          'fgColor': 'blue'
-        knob.trigger 'change'
-      # Reduce phase
-      if states.state == 5
-        item.children('.state').text('done')
-        knob.val 5
-        knob.attr('value', 100)
-        knob.trigger 'change'
-        knob.trigger 'configure',
-          'max': '5'
-          'fgColor': 'green'
-        knob.trigger 'change'
-      knob.trigger 'change'
-      console.log knob.val()
+      window.states = states
+      console.log states
+
+      # Change states
+      if states.change? || cur_state == 0
+        cur_state = states.state
+        switch states.state
+          # Mapping phase
+          when 2
+            item.children('.state').text('mapping')
+            knob.val 0
+            knob.trigger 'configure',
+              'max': states.chunk_total
+              'fgColor': 'purple'
+
+          # Pre shuffle phase
+          when 3
+            item.children('.state').text('pre-shuffle')
+            knob.val 10
+            knob.trigger 'configure',
+              'max': 10
+              'fgColor': 'orange'
+
+          # Reduce phase
+          when 4
+            item.children('.state').text('reducing')
+            knob.val 0
+            knob.trigger 'configure',
+              'max': states.shard_total
+              'fgColor': 'blue'
+
+          # Done
+          when 5
+            item.children('.state').text('done')
+            knob.trigger 'configure',
+              'max': '5'
+              'fgColor': 'green'
+
+      # Increment value
+      else
+        switch states.state
+          when 2
+            knob.val(states.done).trigger('change')
+          when 4
+            knob.val(states.done).trigger('change')
 
   $('.job').click (e) ->
     id = $(this).attr('id')

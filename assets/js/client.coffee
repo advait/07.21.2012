@@ -3,6 +3,9 @@
 # global socket object
 socket = null
 
+# Spin the wheel prototyp
+spin_the_wheel = (amt=1) ->
+
 spawn_webworker = (handler) ->
   worker = new Worker('/js/webworker.js')
   # Setup send wrapper
@@ -25,6 +28,7 @@ worker_handler =
   done_map: ->
     console.log 'DONE MAPPING PHASE'
     socket.emit 'done_map'
+    spin_the_wheel()
 
   emit_reduction: (o) ->
     console.log 'EMITTING REDUCTION', o
@@ -33,8 +37,15 @@ worker_handler =
   done_reduce: ->
     console.log 'DONE REDUCING PHASE'
     socket.emit 'done_reduce'
+    spin_the_wheel()
 
 $ ->
+  # load spinner
+  knob = $('#knob')
+  knob.knob()
+  spin_the_wheel = (amt=1) ->
+    knob.val(Number(knob.val()) + 1)
+    knob.trigger 'change'
   console.log "Hello world"
   url = getSocketServerURL()
   console.log url

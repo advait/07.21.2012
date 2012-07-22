@@ -131,8 +131,8 @@ class exports.Master
 
     @redis_client.publish "job:#{@job._id}", JSON.stringify {
       "state": @state
-      "chunks_done": @num_map_chunks_done
-      "chunks_total": @job.data.length
+      "done": @num_map_chunks_done
+      "chunk_total": @job.data.length
     }
     console.log "Mappers finished: #{@num_map_chunks_done}".red
     if (@num_map_chunks_done == @job.data.length)
@@ -230,8 +230,8 @@ class exports.Master
 
     @redis_client.publish "job:#{@job._id}", JSON.stringify {
       "state": @state
-      "shards_done": @num_shards_done
-      "shards_total": @job.shard_count
+      "done": String(@num_shards_done)
+      "shard_total": String(@job.shard_count)
     }
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == Number(@job.shard_count))
@@ -249,5 +249,6 @@ class exports.Master
     r_key = "job:#{@job._id}:state"
     @redis_client.set r_key, @state
     console.log "Job #{@job._id} new state: #{@state}".green
-    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state}
+    console.log @job.data.length
+    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state, "change": true, "shard_total": @job.shard_count, "chunk_total": @job.data.length}
 

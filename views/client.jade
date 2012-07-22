@@ -11,9 +11,11 @@ html
     != css('style')
     script(src='/socket.io/socket.io.js')
     != js('jquery-1.7.2.min')
+    != js('jquery.knob')
     != js('client')
     != js('webworker')
     block scripts
   body#worker
     h1 Worker
-    h3 Currently working
+    div#spin 
+      input#knob(type='text', data-readonly='true', data-displayInput='false', data-cursor='true', data-width='160', data-thickness='.15', data-max='50' data-bgColor='#eee', data-fgColor='#222')
