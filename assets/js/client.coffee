@@ -26,7 +26,7 @@ worker_handler =
 
   emit_reduction: (o) ->
     console.log 'EMITTING REDUCTION', o
-    socket.emit 'reduce_data_receive', o
+    socket.emit 'reduce_data_recieve', o
 
   done_reduce: ->
     console.log 'DONE REDUCING PHASE'
