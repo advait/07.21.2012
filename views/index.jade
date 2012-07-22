@@ -3,6 +3,9 @@
 
 extends layout
 
+block scripts
+  != js('webworker')
+
 block content
   if context.user
     p

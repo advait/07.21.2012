@@ -16,4 +16,3 @@ exports.index = (req, res) ->
   else
     res.render "index",
       context: context
-
