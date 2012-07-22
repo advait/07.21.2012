@@ -10,10 +10,18 @@ express = require 'express'
 http = require 'http'
 io = require 'socket.io'
 redis = require 'redis'
-routes = require './routes'
 readymade = require 'readymade'
-models = require './models'
+mongoose = require 'mongoose'
 
+models = require './models'
+routes = {}
+routes.index = require './routes/index'
+routes.client = require './routes/client'
+routes.developer = require './routes/developer'
+routes.jobs = require './routes/jobs'
+
+# Connect to the database
+mongoose.connect('mongodb://localhost/compucius')
 
 # Redis things
 redis_client = redis.createClient()
@@ -102,14 +110,11 @@ app.configure 'development', ->
 app.configure 'production', ->
   app.use express.errorHandler()
 
-console.log routes
-
-developer = require('./routes/developer')
-
 # Routes
-app.get '/', routes.index
-app.get '/client', require('./routes/client').client
-app.get '/developer', developer.index
+app.get '/', routes.index.index
+app.get '/client', routes.client.index
+app.get '/developer', routes.developer.index
+app.get '/jobs/:job_id', routes.jobs.index
 
 # Setup web server
 app.listen 8000, ->

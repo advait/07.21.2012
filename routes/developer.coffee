@@ -1,7 +1,7 @@
 # developer.coffee
 # Copyright 2012 Compucius
 
-models = require("../models")
+models = require '../models'
 
 exports.index = (req, res) ->
   context = {}

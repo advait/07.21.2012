@@ -3,9 +3,6 @@
 
 mongoose = require 'mongoose'
 
-# Connect to the database
-mongoose.connect('mongodb://localhost/compucius');
-
 # Jobs 
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
   state:

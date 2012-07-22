@@ -1,9 +1,9 @@
 # client.coffee
 # Copyright 2012 Compucius
 
-models = require("../models")
+models = require '../models'
 
-exports.client = (req, res) ->
+exports.index = (req, res) ->
   context = {}
   context.title = 'Client'
   context.user = null
