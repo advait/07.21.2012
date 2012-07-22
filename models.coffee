@@ -4,26 +4,25 @@
 mongoose = require 'mongoose'
 
 # Connect to the database
-mongoose.connect('mongodb://compucius:bruin@local.host/compucius');
+mongoose.connect('mongodb://localhost/compucius');
 
 # Jobs 
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
-  states:
+  state:
     type: String 
     enum: ['queued', 'in-progress', 'done', 'failed']
     required: true
 
   devId:
-    type: mongoose.Schema.ObjectId
+    type: String
     ref: 'User'
 
-  code: [
+  code:
+    type: String
+
+  data: [
     type: String
   ]
-
-  data:
-    type: String
-    default: ''
 
   shardCount:
     type: Number

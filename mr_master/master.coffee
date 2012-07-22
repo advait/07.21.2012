@@ -2,8 +2,11 @@
 # Date: 07/21/2012
 # master.coffee - contains the master class
 
-# Imports
+# Module imports
 redis = require 'redis'
+
+# App imports
+models = require '../models'
 
 # Master states
 MRStates =
@@ -45,6 +48,9 @@ class exports.Master
       # Print data
       job_id = data[1]
       console.log "Found job: '#{job_id}'".blue
+      models.Job.findById job_id, (error, job) ->
+        console.log error
+        console.log job
 
   chunkData: () ->
   mapData: () ->

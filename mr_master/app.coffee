@@ -11,6 +11,7 @@ redis = require 'redis'
 
 # App imports.
 master = require './master'
+models = require '../models'
 
 # Redis things
 redis_client = redis.createClient()
@@ -37,6 +38,31 @@ sio.set 'authorization', (data, accept) ->
 sio.sockets.on 'connection', (socket) ->
   hs = socket.handshake
   console.log "Socket from #{hs.session.auth.facebook.user.name}".green
+
+# Create new job
+###
+job = new models.Job()
+job.state = 'queued'
+job.code = '
+map = function(chunkId, chunk) {
+  for (var i = 0; i < chunk.length; i++) {
+    emitMapItem(chunk[i], 1);
+  }
+};
+
+reduce = function(key, values) {
+  s = 0;
+  for (var i = 0; i < values.length; i++) {
+    s += values[i];
+  }
+  emitReduction(key, s);
+};
+'
+
+console.log 'trying to save'
+job.save (err, some) ->
+  console.log err
+  console.log some###
 
 mt = new master.Master []
 mt.startJob()
