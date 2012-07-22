@@ -131,22 +131,64 @@ class exports.Master
       @preshuffleData()
 
   preshuffleData: () ->
+    if (@state != MRStates.PRE_SHUFFLE_DATA)
+      console.log err
+      return
 
-  processPreshuffleShard: (shardId) ->
-    @redis_client.get "shardId", (err, reply) ->
-      if (err)
-        console.log err
-        return
-      client = client_pool.pop @processPreshuffleShard shardId
-      client.on 'done', ->
-        client_pool.push client
-        if (false)# all shards complete
-          @updateState MRStates.DONE
-          @job.state = "done"
-          @job.save()
+    for i in [0..@job.shard_count - 1]
+      for j in [0..@job.data.length - 1]
+        @redis_client.get "job:#{@job._id}:chunk:#{j}:#{i}", (err, reply) ->
+          if (err)
+            console.log err
+            return
+          tmp_store = "job:#{@job._id}:shard:#{i}"
+          @redis_client.rpush tmp_store, reply
 
-        #client.emit
-        #client.disconnect
+    @updateState MRStates.SHUFFLE_REDUCE_DATA
+
+    @num_shards_done = 0
+    for i in [0..@job.shard_count - 1]
+      shuffleReduceShard i
+
+  shuffleReduceShard: (shard_id) ->
+    @client_pool.pop (client) =>
+      socket = client.socket
+      dc_handler = () ->
+        console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
+        shuffleReduceShard shard_id
+
+      socket.on 'reduce_data_recieve', (data) ->
+        tmp_store = "job:#{@job._id}:result"
+        @redis_client.hset tmp_store, data.key, data.value
+
+      socket.on 'done_reduce', (data) ->
+        @redis_client.del "job:#{@job._id}:shard:#{shard_id}"
+        socket.removeListener 'disconnect', dc_handler
+        socket.removeAllListeners 'done_reduce'
+        socket.removeAllListeners 'reduce_data_recieve'
+        @client_pool.push client
+        @shuffleReduceFinish()
+
+      socket.on 'disconnect', dc_handler
+
+      @redis_client.get "job:#{@job._id}:shard:#{shard_id}", (shard)->
+        socket.emit 'start_job', {
+          type: 'reduce'
+          code: @job.code
+          data: shard
+        }
+        
+  shuffleReduceFinish: () ->
+    @num_shards_done += 1
+
+    console.log "Shards finished: #{@num_shards_done}".red
+    if (@num_shards_done == @job.data.length)
+      @redis_client.hgetall "job:#{@job._id}:result", (result)->
+        @job.result = result
+        @job.save()
+        @redis_client.del "job:#{@job._id}:result"
+        @updateState MRStates.DONE
+
 
   done: () ->
 

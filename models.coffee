@@ -29,6 +29,9 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   shard_count:
     type: Number
     default: 0
+
+  result:
+    type: Mixed
 )
 
 # Users
