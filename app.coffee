@@ -143,7 +143,7 @@ sio_lame.sockets.on 'connection', (socket) ->
 
   # data = job id
   socket.on 'watch job', (data) ->
-    console.log 'watching'.green
+    console.log "watching #{data}".green
     job_id = Number(data)
     subscription = redis.createClient()
     RedisStore_x = require('connect-redis')(connect)

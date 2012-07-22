@@ -16,5 +16,8 @@ block content
             a.btn.btn-primary(href="/jobs/new") Add new job
           h1 Your current jobs
     div.row
-      div.span12
-        div#knobs
+      div#knobs.span12
+        - jobs.forEach(function(job) {
+          div.job(id=job._id)
+            input.knob(type='text', data-readonly='true', data-thickness='.15')
+        - })

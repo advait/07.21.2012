@@ -9,8 +9,15 @@ exports.index = (req, res) ->
     title: 'Jobs'
 
 exports.jobs = (req, res) ->
-  res.render 'jobs',
-    title: 'Jobs'
+  if !req.user?
+    res.send('must be logged in')
+  models.Job.find {'dev_id': Number(req.user._id)}, (err, jobs) ->
+    if jobs.length == 0
+      console.log 'couldnt find'.red
+    else
+      res.render 'jobs',
+        title: 'Jobs'
+        jobs: jobs
 
 exports.client = (req, res) ->
   res.render 'client',
