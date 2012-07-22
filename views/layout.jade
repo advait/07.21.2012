@@ -28,8 +28,9 @@ html
                 a(href="/") Dashboard
               li
                 a(href="/jobs") Developer
-              li
-                a.play-button(href="#") Launch Worker
+              if user
+                li
+                  a.play-button(href="#") Launch Worker
             ul.nav.pull-right
               if everyauth.loggedIn 
                 li

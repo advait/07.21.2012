@@ -44,18 +44,17 @@ $ ->
       # Reduce phase
       if states.state == 5
         item.children('.state').text('done')
-        knob.val 100
+        knob.val 5
         knob.attr('value', 100)
         knob.trigger 'change'
         knob.trigger 'configure',
-          'max': '100'
+          'max': '5'
           'fgColor': 'green'
         knob.trigger 'change'
       knob.trigger 'change'
       console.log knob.val()
 
   $('.job').click (e) ->
-    console.log 'yo'
     id = $(this).attr('id')
     $.get "/result/#{id}", (data) ->
       $('#results .modal-header h3').text(data.name)
