@@ -12,9 +12,7 @@ block content
         div.hero-unit
           h1 Compucius say do more
           p Javascript mapreduce
-          button.play-button.btn.btn-large.btn-primary Launch Worker
-  if user
-    p
-      h2 Welcome #{user.name}!
-      ul
-        li user/fb id: #{user.id}
+          if user
+            button.play-button.btn.btn-large.btn-primary Launch Worker
+          else
+            p Log in to participate
