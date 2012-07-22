@@ -68,13 +68,13 @@ job = new models.Job()
 job.state = 'queued'
 job.devId = 1055790603
 job.code = '
-map = function(chunkId, chunk) {
+Compucius.map = function(chunk) {
   for (var i = 0; i < chunk.length; i++) {
     emitMapItem(chunk[i], 1);
   }
 };
 
-reduce = function(key, values) {
+Compucius.reduce = function(key, values) {
   s = 0;
   for (var i = 0; i < values.length; i++) {
     s += values[i];
@@ -92,4 +92,5 @@ job.shard_count = 2;
 console.log 'trying to save'
 job.save (err, some) ->
   console.log err
-  console.log some###
+  console.log some
+###

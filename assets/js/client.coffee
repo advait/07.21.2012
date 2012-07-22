@@ -19,13 +19,14 @@ worker_handler =
   emit_map_item: (o) ->
     console.log 'EMITTING MAP ITEM', o
     socket.emit 'map_data_receive', {
-      data: o.shard_id,
+      shard_id: o.shard_id,
       key: o.key,
       value: o.value
     }
 
   done_map: ->
     console.log 'DONE MAPPING PHASE'
+    socket.emit 'done_map'
 
   emit_reduction: (o) ->
     key = o.key
@@ -43,7 +44,7 @@ $ ->
   worker.compuciusSend 'salute'
   socket.on 'start_job', (data) ->
     if data.type == 'map'
-      console.log "STARTING JOB".red, data
+      console.log "STARTING JOB", data
       worker.compuciusSend 'start_map', {
         code: data.code
         chunk: data.data

@@ -8,7 +8,7 @@ mongoose = require 'mongoose'
 models = require '../models'
 Job = models.Job
 
-mongoose.connect('mongodb://compucius:bruin@local.host/compucius');
+mongoose.connect('mongodb://localhost/compucius');
 
 # App imports
 models = require '../models'
@@ -54,11 +54,15 @@ class exports.Master
 
       # Print data
       job_id = data[1]
+      console.log data
       console.log "Found job: '#{job_id}'".blue
-      Job.findById jobId, (err, doc) =>
-        if (err)
+      Job.findById job_id, (err, doc) =>
+        if (err or not doc?)
           console.log err
           return
+
+        console.log "Found this job"
+        console.log doc
         @job = doc
         @updateState MRStates.MAP_DATA
 
@@ -69,34 +73,39 @@ class exports.Master
       console.log err
       return
 
+    console.log "Job #{@job._id}: @ Map Data".blue
     # Call mapChunk for each chunk
     @num_map_chunks_done = 0
-    for i in @job.data.length
-      mapChunk i
+    for i in [0..@job.data.length - 1]
+      @mapChunk i
 
   # Each map chunk function is responsible for making sure that some client
   # finishes mapping the chunk.
   mapChunk: (chunk_id) ->
+    console.log "Job #{@job._id}: chunk #{chunk_id} mapping".blue
     # Allocate a client.
     @client_pool.pop (client) =>
       socket = client.socket
       dc_handler = () ->
         console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
+
         mapChunk chunk_id
 
-      @redis_client.delete "job:#{@job._id}:chunk:#{chunk_id}:*"
+      # Delete all previous chunk/sharding keys.
+      for i in [0..@job.data.length - 1]
+        @redis_client.del "job:#{@job._id}:chunk:#{chunk_id}:#{i}"
 
       socket.on 'map_data_receive', (data) =>
         # Get the shard id from data
         tmp_store = "job:#{@job._id}:chunk:#{chunk_id}:#{data.shard_id}"
-        @redis_client.rpush tmp_store, [ data.key, data.value ]
+        @redis_client.rpush tmp_store, "[#{data.key}, #{data.value}]"
 
 
-      socket.on 'done', (data) =>
+      socket.on 'done_map', (data) =>
         # Remove all listeners set, returns the client back into the pool, and
         # tells the mapper this chunk has finished.
         socket.removeListener 'disconnect', dc_handler
-        socket.removeAllListeners 'done'
+        socket.removeAllListeners 'done_map'
         socket.removeAllListeners 'map_data_receive'
         @client_pool.push client
         @mapFinish()
@@ -118,7 +127,7 @@ class exports.Master
 
     console.log "Mappers finished: #{@num_map_chunks_done}".red
     if (@num_map_chunks_done == @job.data.length)
-      @updateState PRE_SHUFFLE_DATA
+      @updateState MRStates.PRE_SHUFFLE_DATA
       @preshuffleData()
 
   preshuffleData: () ->
