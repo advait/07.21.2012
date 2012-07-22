@@ -74,7 +74,7 @@ class exports.Master
       return
 
     console.log "Job #{@job._id}: @ Map Data".blue
-    @redis_client.publish "job:#{@job._id}", "job_started"
+    @redis_client.publish "job:#{@job._id}", {'state': @state}
     @redis_client.set "job:#{@job._id}:start_time", new Date()
     # Call mapChunk for each chunk
     @num_map_chunks_done = 0
@@ -122,13 +122,13 @@ class exports.Master
         data_type: @job.data_type
         data: @job.data[chunk_id]
       }
-      @redis_client.publish "job:#{@job._id}", "map_started"
+      @redis_client.publish "job:#{@job._id}", {'state': @state}
 
 
   mapFinish: () ->
     @num_map_chunks_done += 1
 
-    @redis_client.publish "job:#{@job._id}", "chunks_done:#{@num_map_chunks_done}"
+    @redis_client.publish "job:#{@job._id}", {'state': @state, "chunks_done":@num_map_chunks_done}
     console.log "Mappers finished: #{@num_map_chunks_done}".red
     if (@num_map_chunks_done == @job.data.length)
       @redis_client.publish "job:#{@job._id}", "map_done"
@@ -140,7 +140,7 @@ class exports.Master
       console.log err
       return
 
-    @redis_client.publish "job:#{@job._id}", "preshuffle"
+    @redis_client.publish "job:#{@job._id}", {'state': @state}
     for i in [0..@job.shard_count - 1]
       for j in [0..@job.data.length - 1]
         @redis_client.get "job:#{@job._id}:chunk:#{j}:#{i}", (err, reply) ->
@@ -151,7 +151,7 @@ class exports.Master
           @redis_client.rpush tmp_store, reply
 
     @updateState MRStates.SHUFFLE_REDUCE_DATA
-    @redis_client.publish "job:#{@job._id}", "shuffle_reduce"
+    @redis_client.publish "job:#{@job._id}", {'state': @state}
 
     @num_shards_done = 0
     for i in [0..@job.shard_count - 1]
@@ -188,7 +188,7 @@ class exports.Master
   shuffleReduceFinish: () ->
     @num_shards_done += 1
 
-    @redis_client.publish "job:#{@job._id}", "shards_done:#{@num_shards_done}"
+    @redis_client.publish "job:#{@job._id}", {'state': @state, 'shards_done': @num_shards_done}
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == @job.data.length)
       @redis_client.hgetall "job:#{@job._id}:result", (result)->
@@ -200,7 +200,7 @@ class exports.Master
 
 
   done: () ->
-    @redis_client.publish "job:#{@job._id}", "job_done"
+    @redis_client.publish "job:#{@job._id}", {'state': MRStates.DONE}
 
   updateState: (newState) ->
     @state = newState
