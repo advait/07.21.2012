@@ -46,7 +46,7 @@ sio.sockets.on 'connection', (socket) ->
     free_clients.remove client for client in free_clients when client.socket is socket
 
     # Remove reassign the client's assigned chunk/shard
-    
+
   hs = socket.handshake
 
   # Create new Client and add it to the free clients
@@ -59,11 +59,13 @@ mt = new master.Master []
 mt.startJob()
 
 # Create new job
+###
 models.Job.findById '500b94232536fac671000001', (err, doc) ->
   console.log doc
   doc.state = 'queued'
   doc.type = 'text'
   doc.save()
+###
 ###
 job = new models.Job()
 job.state = 'queued'
