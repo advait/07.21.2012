@@ -156,4 +156,5 @@ sio_lame.sockets.on 'connection', (socket) ->
 
   # Close subscription before we close socket
   socket.on 'disconnect', () ->
-    subscription.quit()
+    if subscription?
+      subscription.quit()

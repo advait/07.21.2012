@@ -18,5 +18,7 @@ update = (job_id) ->
 $ ->
   socket = io.connect 'http://local.host:8000'
   socket.emit 'watch job', 222
+  socket.on 'message', (data) ->
+    console.log data
 
   #setInterval update, 1000, 222
