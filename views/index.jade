@@ -8,11 +8,14 @@ block scripts
 block content
   div.container
     div.row
-      div.span12
+      div.span3
+        img(src="http://i.imgur.com/LLdEG.png")
+      div.span9
         div.hero-unit
-          h1 Compucius say do more
-          p Javascript mapreduce
+          h2 Compucius say...
+          h1 A friend asks only for your time, not your money.
+          p Use your friend's spare cycles to <strong>do your bidding</strong> in JavaScript.
           if user
             button.play-button.btn.btn-large.btn-primary Launch Worker
           else
-            p Log in to participate
+            a.btn.btn-large.btn-primary(href="/auth/login") Login with Facebook

@@ -1,6 +1,9 @@
 // layout.jade
 // Base layout for everything!
 // Copyright 2012 Compucius
+
+- var page = String(title)
+
 doctype 5
 html
   head
@@ -12,7 +15,7 @@ html
     != js('bootstrap.min')
     != js('script')
     block scripts
-  body
+  body(id=page)
     // Navbar
     div.navbar.navbar-fixed-top
       div.navbar-inner

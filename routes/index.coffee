@@ -15,7 +15,7 @@ session_store = new RedisStore {client: redis_client}
 exports.index = (req, res) ->
   console.log 'REQUEST'.red, req.user
   res.render "index",
-    title: 'Jobs'
+    title: 'Home'
 
 exports.jobs = (req, res) ->
   if !req.user?
