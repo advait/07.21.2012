@@ -48,11 +48,10 @@ $ ->
           'max': '100'
           'fgColor': 'green'
         knob.trigger 'change'
-        item.click openModal
       knob.trigger 'change'
       console.log knob.val()
 
-  openModal = (e) ->
+  $('.job').click (e) ->
     console.log 'yo'
     id = $(this).attr('id')
     $.get "/result/#{id}", (data) ->
