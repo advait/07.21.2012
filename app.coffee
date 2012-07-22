@@ -93,7 +93,12 @@ app.listen 8000, ->
   console.log "Express server listening"
 
 # Setup socket.io
-sio = io.listen app
+sio_lame = io.listen app
+sio_lame.set 'authorization', (data, accept) ->
+  accept 'Cant make connections to this socket', false
+
+
+sio = io.listen 8001
 sio.set 'authorization', (data, accept) ->
   # Only accept incoming sockets if we have a cookie
   if not data.headers.cookie?
@@ -104,6 +109,7 @@ sio.set 'authorization', (data, accept) ->
     data.session_store = session_store
     session_store.get data.sid, (err, session) ->
       if err or not session? or not session.auth?
+        console.log 'REJECTING'
         accept err, false  # Reject socket
       else
         data.session = new connect.middleware.session.Session data, session
