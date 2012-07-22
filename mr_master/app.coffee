@@ -38,6 +38,11 @@ sio.set 'authorization', (data, accept) ->
         data.session = new connect.middleware.session.Session data, session
         accept null, true  # Accept socket
 
+# Socket settings
+# turn off some logs
+sio.configure ()->
+  sio.set('log level', 0)
+
 sio.sockets.on 'connection', (socket) ->
 
   hs = socket.handshake

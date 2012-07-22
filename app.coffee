@@ -25,7 +25,6 @@ redis_client = redis.createClient()
 RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
 
-# Mongo things
 
 # Create server
 app = module.exports = express.createServer()
@@ -160,3 +159,8 @@ sio_lame.sockets.on 'connection', (socket) ->
   socket.on 'disconnect', () ->
     if subscription?
       subscription.quit()
+
+# Socket settings
+# turn off some logs
+sio_lame.configure ()->
+  sio_lame.set('log level', 0)
