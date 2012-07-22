@@ -4,6 +4,11 @@
 
 # Module imports
 redis = require 'redis'
+mongoose = require 'mongoose'
+models = require '../models'
+Job = models.Job
+
+mongoose.connect('mongodb://compucius:bruin@local.host/compucius');
 
 # App imports
 models = require '../models'
@@ -11,7 +16,6 @@ models = require '../models'
 # Master states
 MRStates =
   START: 0
-  CHUNK_DATA: 1
   MAP_DATA: 2
   PRE_SHUFFLE_DATA: 3
   SHUFFLE_REDUCE_DATA: 4
@@ -30,6 +34,7 @@ class exports.Master
     @client_pool = clientPool
     @redis_client = redis.createClient()
     @state = MRStates.START
+    @job = null
 
   startJob: () ->
     # Ensure correct state.
@@ -48,12 +53,19 @@ class exports.Master
       # Print data
       job_id = data[1]
       console.log "Found job: '#{job_id}'".blue
-      models.Job.findById job_id, (error, job) ->
-        console.log error
-        console.log job
+      Job.findById jobId, (err, doc) =>
+        if (err)
+          console.log err
+          return
+        @job = doc
+        @state = MRStates.MAP_DATA
 
-  chunkData: () ->
+        @mapData()
+
   mapData: () ->
   preshuffleData: () ->
   done: () ->
+
+
+      
 

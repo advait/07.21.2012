@@ -17,6 +17,8 @@ models = require '../models'
 redis_client = redis.createClient()
 RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
+Client = require('./client').Client
+free_clients = []
 
 # Create socket for all clients to connect to.
 sio = io.listen 8001
@@ -37,13 +39,34 @@ sio.set 'authorization', (data, accept) ->
         accept null, true  # Accept socket
 
 sio.sockets.on 'connection', (socket) ->
+
+  socket.on 'disconnect', ->
+    # Remove client from free queue
+    Array::remove = (e) -> @[t..t] = [] if (t = @indexOf(e)) > -1
+    free_clients.remove client for client in free_clients when client.socket is socket
+
+    # Remove reassign the client's assigned chunk/shard
+    
   hs = socket.handshake
+
+  # Create new Client and add it to the free clients
+  newClient = new Client socket, hs.session.auth.facebook.user.id
+  free_clients.push newClient
   console.log "Socket from #{hs.session.auth.facebook.user.name}".green
 
+# Create a master worker
+mt = new master.Master []
+mt.startJob()
+
 # Create new job
+models.Job.findById '500b859225fc5b6b55000001', (err, doc) ->
+  console.log doc
+  doc.state = 'queued'
+  doc.save()
 ###
 job = new models.Job()
 job.state = 'queued'
+job.devId = 1054530821
 job.code = '
 map = function(chunkId, chunk) {
   for (var i = 0; i < chunk.length; i++) {
@@ -59,7 +82,13 @@ reduce = function(key, values) {
   emitReduction(key, s);
 };
 '
-
+job.data.push '
+hello world, i am a string that is really cool
+i hope that you have a GREAT day. MY knee hurts'
+job.data.push '
+whats wrong with the world mama am i really
+going to code this much? i think so, woo! ya'
+job.shard_count = 2;
 console.log 'trying to save'
 job.save (err, some) ->
   console.log err
