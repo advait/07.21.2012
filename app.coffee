@@ -45,11 +45,9 @@ fb.handleAuthCallbackError (req, res) ->
   # view notifying the user that their authentication failed and why.
   console.log 'FACBEOOK ERROR HAPPENED!'
 fb.findOrCreateUser (session, accessToken, accessTokExtra, fbUserMetadata) ->
-  console.log 'asldkfjads'
   promise = @Promise()
   # Check mongo for user
   models.User.findById Number(fbUserMetadata.id), (err, user) ->
-    console.log 'asdlkfjiowqr'
     if user
       # User found
       console.log 'found'.green
@@ -104,8 +102,11 @@ app.configure 'development', ->
 app.configure 'production', ->
   app.use express.errorHandler()
 
+console.log routes
+
 # Routes
 app.get '/', routes.index
+app.get '/client/', require('./routes/client').client
 
 # Setup web server
 app.listen 8000, ->

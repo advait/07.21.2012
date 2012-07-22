@@ -4,8 +4,14 @@
 extends layout
 
 block content
-  if context.user
-    p
-      h2 Welcome #{context.user.name}!
-      ul
-        li user/fb id: #{context.user.id}
+  div.container
+    div.row
+      div.span12
+        div.hero-unit
+          h1 Compucius say do more
+          p Javascript mapreduce
+      if context.user
+        p
+          h2 Welcome #{context.user.name}!
+          ul
+            li user/fb id: #{context.user.id}
