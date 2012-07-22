@@ -111,6 +111,7 @@ app.get '/client', routes.client
 app.get '/jobs', routes.jobs
 app.get '/jobs/new', routes.jobs_new
 app.post '/jobs/new', routes.jobs_new_process
+app.get '/result/:id', routes.result
 app.get '/status/:job_id', routes.status
 
 # Setup web server

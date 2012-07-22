@@ -48,6 +48,14 @@ $ ->
           'max': '100'
           'fgColor': 'green'
         knob.trigger 'change'
+        item.click openModal
       knob.trigger 'change'
       console.log knob.val()
 
+  openModal = (e) ->
+    console.log 'yo'
+    id = $(this).attr('id')
+    $.get "/result/#{id}", (data) ->
+      $('#results .modal-header h3').text(data.name)
+      $('#results .modal-body pre').text(JSON.stringify(data.results, undefined, 2))
+    $('#results').modal('show')

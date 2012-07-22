@@ -3,7 +3,7 @@
 
 access_token = '2334787993255525024264726173982699884554'
 
-models = require("../models")
+models = require '../models'
 
 exports.index = (req, res) ->
   console.log 'REQUEST'.red, req.user
@@ -24,6 +24,11 @@ exports.jobs = (req, res) ->
 exports.client = (req, res) ->
   res.render 'client',
     title: 'Client'
+
+exports.result = (req, res) ->
+  models.Job.findById req.params.id, (err, doc) ->
+    console.log doc
+    res.send(doc)
 
 exports.jobs_new = (req, res) ->
   default_code = """
