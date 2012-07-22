@@ -14,6 +14,10 @@ MRStates =
   SHUFFLE_REDUCE_DATA: 4
   DONE: 5
 
+# Master constants
+constants =
+  R_JOB_QUEUE = 'job_queue'
+
 # Master class
 class exports.Master
 
@@ -22,3 +26,28 @@ class exports.Master
   constructor: (clientPool) ->
     @client_pool = clientPool
     @redis_client = redis.createClient()
+    @state = MRStates.START
+
+  startJob: () ->
+    # Ensure correct state.
+    if (@state != MRStates.START)
+      console.log "startJob: Can't start while in state #{@state}".red
+      return
+
+    # Get the next queued up job.
+    console.log 'Looking for next queued job'.blue
+    @redis_client.blpop R_JOB_QUEUE, 0, (err, data) =>
+      # Make sure there aren't any errors.
+      if (err)
+        console.log err
+        return
+
+      # Print data
+      job_id = data[1]
+      console.log "Found job: '#{job_id}'".blue
+
+  chunkData: () ->
+  mapData: () ->
+  preshuffleData: () ->
+  done: () ->
+

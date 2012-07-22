@@ -2,12 +2,15 @@
 # Date: 07/21/2012
 # app.coffee - main file for the mr_master
 
-# Imports
+# Module imports.
 colors = require 'colors'
 connect = require 'connect'
 cookie = require 'cookie'
 io = require 'socket.io'
 redis = require 'redis'
+
+# App imports.
+master = require './master'
 
 # Redis things
 redis_client = redis.createClient()
@@ -33,4 +36,7 @@ sio.set 'authorization', (data, accept) ->
         accept null, true  # Accept socket
 sio.sockets.on 'connection', (socket) ->
   hs = socket.handshake
-  console.log "Socket from #{hs.session.auth.facebook.user.name}".red
+  console.log "Socket from #{hs.session.auth.facebook.user.name}".green
+
+mt = new master.Master []
+mt.startJob()
