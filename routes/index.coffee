@@ -32,6 +32,11 @@ exports.client = (req, res) ->
   res.render 'client',
     title: 'Client'
 
+exports.result = (req, res) ->
+  models.Job.findById req.params.id, (err, doc) ->
+    console.log doc
+    res.send(doc)
+
 exports.jobs_new = (req, res) ->
   default_code = """
 generateChunk(key) {
