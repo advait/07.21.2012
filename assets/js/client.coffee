@@ -39,10 +39,3 @@ $ ->
   socket.emit('hi', 'hello world')
   worker = spawn_webworker(worker_handler)
   worker.compuciusSend 'salute'
-  worker.compuciusSend 'start_map', {
-    script: '/js/test_mr.js',
-    chunk_id: 1,
-    chunk: "hello",
-    shard_count: 4
-  }
-
