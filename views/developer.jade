@@ -1,0 +1,20 @@
+// developer.jade
+// Copyright 2012 Compucius
+
+extends layout
+
+block scripts
+  != js('jquery.knob')
+  != js('developer')
+
+block content
+  div.container
+    div.row
+      div.span12
+        div.page-header
+          div.pull-right
+            button#new-job.btn.btn-primary Add new job
+          h1 Your current jobs
+    div.row
+      div.span12
+        div#knobs

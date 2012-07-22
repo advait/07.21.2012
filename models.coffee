@@ -2,18 +2,19 @@
 # Copyright 2012 Compucius
 
 mongoose = require 'mongoose'
+exports.mongoose = mongoose
 
-# Connect to the database
-mongoose.connect('mongodb://localhost/compucius');
-
-# Jobs 
+# Jobs
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
-  state:
-    type: String 
-    enum: ['queued', 'in-progress', 'done', 'failed']
-    required: true
+  name:
+    type: String
 
-  devId:
+  state:
+    type: String
+    enum: ['queued', 'in-progress', 'done', 'failed']
+    default: 'queued'
+
+  dev_id:
     type: Number
     ref: 'User'
 
@@ -23,7 +24,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   data: [
     type: String
   ]
-  
+
   data_type:
     type: String
     enum: ['json', 'text']
@@ -31,6 +32,9 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   shard_count:
     type: Number
     default: 0
+
+  result:
+    type: {}
 )
 
 # Users
