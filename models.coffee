@@ -31,7 +31,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
     default: 0
 
   result:
-    type: Mixed
+    type: {}
 )
 
 # Users

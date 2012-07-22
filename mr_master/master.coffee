@@ -135,20 +135,34 @@ class exports.Master
       console.log err
       return
 
-    for i in [0..@job.shard_count - 1]
-      for j in [0..@job.data.length - 1]
-        @redis_client.get "job:#{@job._id}:chunk:#{j}:#{i}", (err, reply) ->
-          if (err)
-            console.log err
-            return
-          tmp_store = "job:#{@job._id}:shard:#{i}"
-          @redis_client.rpush tmp_store, reply
+
+
+    console.log "PRESHUFFLING DATA!".red
+    for x in [0..(@job.shard_count - 1)]
+      @redis_client.del "job:#{@job._id}:shard:#{x}"
+      all_values_for_shard = []
+      for y in [0..@job.data.length - 1]
+        func = () =>
+          i = x
+          j = y
+          tmp_store = "job:#{@job._id}:chunk:#{j}:#{i}"
+          @redis_client.lrange "job:#{@job._id}:chunk:#{j}:#{i}", 0, -1, (err, reply) =>
+            if (err)
+              console.log err
+              return
+            tmp_store = "job:#{@job._id}:shard:#{i}"
+            for item in reply
+              @redis_client.rpush tmp_store, item, (err, reply) ->
+                if err?
+                  console.log err
+                  return
+        func()
 
     @updateState MRStates.SHUFFLE_REDUCE_DATA
 
     @num_shards_done = 0
     for i in [0..@job.shard_count - 1]
-      shuffleReduceShard i
+      @shuffleReduceShard i
 
   shuffleReduceShard: (shard_id) ->
     @client_pool.pop (client) =>
@@ -157,11 +171,11 @@ class exports.Master
         console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
         shuffleReduceShard shard_id
 
-      socket.on 'reduce_data_recieve', (data) ->
+      socket.on 'reduce_data_recieve', (data) =>
         tmp_store = "job:#{@job._id}:result"
         @redis_client.hset tmp_store, data.key, data.value
 
-      socket.on 'done_reduce', (data) ->
+      socket.on 'done_reduce', (data) =>
         @redis_client.del "job:#{@job._id}:shard:#{shard_id}"
         socket.removeListener 'disconnect', dc_handler
         socket.removeAllListeners 'done_reduce'
@@ -171,7 +185,12 @@ class exports.Master
 
       socket.on 'disconnect', dc_handler
 
-      @redis_client.get "job:#{@job._id}:shard:#{shard_id}", (shard)->
+      tmp_store = "job:#{@job._id}:shard:#{shard_id}"
+      @redis_client.lrange tmp_store, 0, -1, (err, shard) =>
+        if (err)
+          console.log err
+          return
+
         socket.emit 'start_job', {
           type: 'reduce'
           code: @job.code
@@ -183,7 +202,7 @@ class exports.Master
 
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == @job.data.length)
-      @redis_client.hgetall "job:#{@job._id}:result", (result)->
+      @redis_client.hgetall "job:#{@job._id}:result", (result) =>
         @job.result = result
         @job.save()
         @redis_client.del "job:#{@job._id}:result"
