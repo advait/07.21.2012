@@ -12,6 +12,7 @@ html
     != js('jquery-1.7.2.min')
     != js('bootstrap.min')
     != js('client')
+    block scripts
   body
     // Navbar
     div.navbar.navbar-fixed-top
@@ -29,7 +30,7 @@ html
               li
                 a(href="/client") Client
               li
-                a(href="/dev") Developer
+                a(href="/developer") Developer
             ul.nav.pull-right
               if everyauth.loggedIn 
                 li

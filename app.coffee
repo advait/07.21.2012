@@ -104,9 +104,12 @@ app.configure 'production', ->
 
 console.log routes
 
+developer = require('./routes/developer')
+
 # Routes
 app.get '/', routes.index
-app.get '/client/', require('./routes/client').client
+app.get '/client', require('./routes/client').client
+app.get '/developer', developer.index
 
 # Setup web server
 app.listen 8000, ->
