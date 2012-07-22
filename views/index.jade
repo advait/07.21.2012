@@ -3,6 +3,9 @@
 
 extends layout
 
+block scripts
+  != js('webworker')
+
 block content
   if everyauth.loggedIn
     p

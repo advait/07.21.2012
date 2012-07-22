@@ -31,6 +31,8 @@ sio.set 'authorization', (data, accept) ->
       else
         data.session = new connect.middleware.session.Session data, session
         accept null, true  # Accept socket
+
 sio.sockets.on 'connection', (socket) ->
   hs = socket.handshake
   console.log "Socket from #{hs.session.auth.facebook.user.name}".red
+

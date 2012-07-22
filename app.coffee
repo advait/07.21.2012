@@ -22,10 +22,6 @@ session_store = new RedisStore {client: redis_client}
 # Create server
 app = module.exports = express.createServer()
 
-# Store users and sessions in local memory
-# TODO: MOVE THESE TO REDIS!
-app.users = {}
-
 # Setup everyauth facbeook
 #em = everyauth.everymodule
 fb = everyauth.facebook
@@ -62,8 +58,6 @@ app.configure ->
   app.set 'view engine', 'jade'
   app.set 'view options', {layout: false}
   # For auto-compiling LESS
-  app.use readymade.middleware (root: 'public')
-
   # Middleware
   app.use express.favicon()
   app.use express.logger('dev')
@@ -73,8 +67,9 @@ app.configure ->
   app.use express.session {store: session_store, secret: 'GREYLOCKu!'}
   app.use everyauth.middleware()
   app.use app.router
+  app.use express.static(__dirname + '/assets')
+  app.use readymade.middleware (root: 'public')
   app.use connect_assets()  # Serve compiled assets
-  #app.use express.static(__dirname + '/public')
 
 # Add everyauth view helpers
 everyauth.helpExpress app
