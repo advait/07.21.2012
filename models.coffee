@@ -2,14 +2,15 @@
 # Copyright 2012 Compucius
 
 mongoose = require 'mongoose'
+exports.mongoose = mongoose
 
 # Connect to the database
-mongoose.connect('mongodb://localhost/compucius');
+mongoose.connect 'mongodb://local.host/compucius'
 
-# Jobs 
+# Jobs
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
   state:
-    type: String 
+    type: String
     enum: ['queued', 'in-progress', 'done', 'failed']
     required: true
 
@@ -23,7 +24,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   data: [
     type: String
   ]
-  
+
   data_type:
     type: String
     enum: ['json', 'text']

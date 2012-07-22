@@ -1,0 +1,13 @@
+// jobs.jade
+// Copyright 2012 Compucius
+
+extends layout
+
+block content
+  h1 View Jobs
+  if everyauth.loggedIn
+    p
+      h2 Welcome #{everyauth.facebook.user.name}!
+      ul
+        li user/fb id: #{everyauth.facebook.user.id}
+        li user: #{JSON.stringify(everyauth.facebook.user)}

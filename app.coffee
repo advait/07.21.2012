@@ -10,6 +10,8 @@ express = require 'express'
 http = require 'http'
 io = require 'socket.io'
 redis = require 'redis'
+
+models = require './models'
 routes = require './routes'
 readymade = require 'readymade'
 models = require './models'
@@ -19,6 +21,8 @@ models = require './models'
 redis_client = redis.createClient()
 RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
+
+# Mongo things
 
 # Create server
 app = module.exports = express.createServer()
@@ -76,7 +80,6 @@ app.configure ->
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'jade'
   app.set 'view options', {layout: false}
-  # For auto-compiling LESS
   # Middleware
   app.use express.favicon()
   app.use express.logger('dev')
@@ -101,6 +104,7 @@ app.configure 'production', ->
 
 # Routes
 app.get '/', routes.index
+app.get '/jobs', routes.jobs
 
 # Setup web server
 app.listen 8000, ->

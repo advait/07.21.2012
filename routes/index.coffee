@@ -16,3 +16,7 @@ exports.index = (req, res) ->
   else
     res.render "index",
       context: context
+
+exports.jobs = (req, res) ->
+  res.render 'jobs',
+    title: 'Jobs'
