@@ -10,7 +10,6 @@ import time, datetime
 
 BASE_URL = "localhost:8000"
 NEW_JOB_PATH =  "/jobs/new"
-ACCESS_TOKEN = '2334787993255525024264726173982699884554'
 
 def main():
 
@@ -24,7 +23,12 @@ def main():
       help="The number of shards to distribute map output to. Default: 5")
   parser.add_argument('-u', '--uid', dest='user_id', type=int,
       help="The user id you wish to submit as")
-
+  parser.add_argument('-d', '--destination-url', dest='destination_url', type=str,
+      default=BASE_URL,
+      help="The base url you use.")
+  parser.add_argument('-c', '--num-chunks', dest='num_chunks', type=int,
+      default=10,
+      help="How many chunks to use in the mapping stage.")
   
   args = parser.parse_args()
 
@@ -66,6 +70,7 @@ def main():
       'data': data,
       'code': code,
       'shard_count': str(args.shard_count),
+      'num_chunks': args.num_chunks
   }
   if args.user_id:
     new_job['uid'] = args.user_id
@@ -73,7 +78,7 @@ def main():
   headers = {"Content-type": "application/x-www-form-urlencoded",
                   "Accept": "text/plain"}
   post_data = urllib.urlencode(new_job)
-  conn = httplib.HTTPConnection(BASE_URL)
+  conn = httplib.HTTPConnection(args.destination_url)
   conn.request("POST", NEW_JOB_PATH, post_data, headers)
   response = conn.getresponse()
   print response.status, response.reason

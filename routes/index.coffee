@@ -57,7 +57,7 @@ generateReduction(key, value) {
 exports.jobs_new_process = (req, res) ->
   # Chunk the data
   if (req.body.data_type == 'text')
-    num_chunks = 5
+    num_chunks = req.body.num_chunks
     data_chunks = []
     local_chunk = []
     lines = req.body.data.split '\n'
