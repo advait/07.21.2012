@@ -120,12 +120,12 @@ class exports.Master
   preshuffleData: () ->
 
   processPreshuffleShard: (shardId) ->
-    @redis_client.get("shardId", (err, reply) ->
+    @redis_client.get "shardId", (err, reply) ->
       if (err)
         console.log err
         return
       client = client_pool.pop @processPreshuffleShard shardId
-      client.on 'done' ->
+      client.on 'done', ->
         client_pool.push client
         if (false)# all shards complete
           @updateState MRStates.DONE
