@@ -1,4 +1,4 @@
-# index.coffee
+#index.coffee
 # Copyright 2012 Compucius
 
 access_token = '2334787993255525024264726173982699884554'
@@ -51,11 +51,26 @@ generateReduction(key, value) {
     default_code: default_code
 
 exports.jobs_new_process = (req, res) ->
+  # Chunk the data
+  if (req.body.data_type == 'text')
+    num_chunks = 5
+    data_chunks = []
+    local_chunk = []
+    lines = req.body.data.split '\n'
+    chunk_size = lines.length / num_chunks
+    for line in lines
+      local_chunk.push line
+      if local_chunk.length >= chunk_size
+        #        if data_chunks.length != num_chunks - 1
+        data_chunks.push local_chunk.join '\n'
+        local_chunk = []
+    data_chunks.push local_chunk.join '\n'
+
   devid = if req.user? then req.user._id else if req.body.access == access_token then access_token else undefined
   new_job = new models.Job(
     name: req.body.name
     data_type: req.body.data_type
-    data: [req.body.data]
+    data: data_chunks
     code: req.body.code
     shard_count: Number(req.body.shard_count)
     dev_id: devid

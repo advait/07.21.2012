@@ -64,7 +64,8 @@ def main():
       'data': data,
       'code': code,
       'shard_count': str(args.shard_count),
-      'access':   }
+      'access': ACCESS_TOKEN
+  }
   
   headers = {"Content-type": "application/x-www-form-urlencoded",
                   "Accept": "text/plain"}
