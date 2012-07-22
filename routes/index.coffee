@@ -13,7 +13,6 @@ RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
 
 exports.index = (req, res) ->
-  console.log 'REQUEST'.red, req.user
   sayings = [
     'A friend asks only for your time, not your money.'
     'A friend asks only for your time, not your money.'
