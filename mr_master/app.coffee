@@ -17,6 +17,8 @@ models = require '../models'
 redis_client = redis.createClient()
 RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
+Client = require('./client').Client
+free_clients = []
 
 # Create socket for all clients to connect to.
 sio = io.listen 8001
@@ -36,7 +38,19 @@ sio.set 'authorization', (data, accept) ->
         data.session = new connect.middleware.session.Session data, session
         accept null, true  # Accept socket
 sio.sockets.on 'connection', (socket) ->
+
+  socket.on 'disconnect', ->
+    # Remove client from free queue
+    Array::remove = (e) -> @[t..t] = [] if (t = @indexOf(e)) > -1
+    free_clients.remove client for client in free_clients when client.socket is socket
+
+    # Remove reassign the client's assigned chunk/shard
+    
   hs = socket.handshake
+
+  # Create new Client and add it to the free clients
+  newClient = new Client socket, hs.session.auth.facebook.user.id
+  free_clients.push newClient
   console.log "Socket from #{hs.session.auth.facebook.user.name}".green
 
 # Create new job
