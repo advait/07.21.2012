@@ -25,6 +25,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   dev_id:
     type: Number
     ref: 'User'
+    index: true
 
   code:
     type: String

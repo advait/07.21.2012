@@ -43,4 +43,13 @@ block content
           div#invalid.alert.hide
             button.close(data-dismiss="alert") x
             | <strong>Code is invalid</strong>
-        a#new-submit.btn.btn-primary.btn-large(href="#") DO WERK
+        a.btn.btn-primary.btn-large(href="#confirm", data-toggle="modal") DO WERK
+
+  div#confirm.modal.fade.hide
+    div.modal-header
+      h3 Confirmation
+    div.modal-body
+      p Are you sure you want to start the job?
+    div.modal-footer
+      a.btn(href="#", data-dismiss="modal") No
+      a#new-submit.btn.btn-primary(href="#") Yes, start the job

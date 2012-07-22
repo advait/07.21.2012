@@ -1,13 +1,19 @@
 // index.jade
+// Small window
 // Copyright 2012 Compucius
 
-extends layout
-
-block content
-  div.container
-    div.row
-      div.span12
-        div.hero-unit
-          h1 Join the network
-          p Contribute cycles simply by pressing play:
-          button#play-button.btn.btn-primary.btn-large Play
+doctype 5
+html
+  head
+    title= 'Compucius - Worker' + title
+    != css('bootstrap.min')
+    != css('bootstrap-responsive.min')
+    != css('style')
+    != js('http://local.host:8000/socket.io/socket.io')
+    != js('jquery-1.7.2.min')
+    != js('client')
+    != js('webworker')
+    block scripts
+  body#worker
+    h1 Worker
+    h3 Currently working
