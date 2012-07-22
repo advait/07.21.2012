@@ -14,7 +14,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
     required: true
 
   devId:
-    type: String
+    type: Number
     ref: 'User'
 
   code:
@@ -24,18 +24,21 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
     type: String
   ]
 
-  shardCount:
+  shard_count:
     type: Number
     default: 0
 )
 
 # Users
-exports.User = mongoose.model 'User', new mongoose.Schema(
-  firstName:
+UserSchema = new mongoose.Schema(
+  _id:
+    type: Number
+
+  first_name:
     type: String
     required: true
 
-  lastName:
+  last_name:
     type: String
     required: true
 
@@ -43,14 +46,17 @@ exports.User = mongoose.model 'User', new mongoose.Schema(
     type: String
     required: true
 
-  fbAccessToken:
+  fb_access_token:
     type: String
 
-  fbId:
-    type: Number
+  is_developer:
+    type: Boolean
+    default: false
 
   credits:
     type: Number
     default: 0
-    required: true
 )
+UserSchema.virtual('name').get () ->
+  return this.first_name + ' ' + this.last_name
+exports.User = mongoose.model 'User', UserSchema
