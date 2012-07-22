@@ -40,10 +40,19 @@ sio.sockets.on 'connection', (socket) ->
   hs = socket.handshake
   console.log "Socket from #{hs.session.auth.facebook.user.name}".green
 
+# Create a master worker
+mt = new master.Master []
+mt.startJob()
+
 # Create new job
+models.Job.findById '500b859225fc5b6b55000001', (err, doc) ->
+  console.log doc
+  doc.state = 'queued'
+  doc.save()
 ###
 job = new models.Job()
 job.state = 'queued'
+job.devId = 1054530821
 job.code = '
 map = function(chunkId, chunk) {
   for (var i = 0; i < chunk.length; i++) {
@@ -59,7 +68,13 @@ reduce = function(key, values) {
   emitReduction(key, s);
 };
 '
-
+job.data.push '
+hello world, i am a string that is really cool
+i hope that you have a GREAT day. MY knee hurts'
+job.data.push '
+whats wrong with the world mama am i really
+going to code this much? i think so, woo! ya'
+job.shard_count = 2;
 console.log 'trying to save'
 job.save (err, some) ->
   console.log err
