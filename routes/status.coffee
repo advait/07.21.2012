@@ -9,7 +9,7 @@ redis_client = redis.createClient()
 RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
 
-exports.index = (req, res) ->
+exports.status = (req, res) ->
   data = {}
   data.job = req.params.job_id
   data.state = 0

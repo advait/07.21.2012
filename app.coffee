@@ -15,6 +15,7 @@ mongoose = require 'mongoose'
 
 models = require './models'
 routes = require './routes'
+routes.status = require('./routes/status').status
 
 # Connect to the database
 mongoose.connect('mongodb://localhost/compucius')
@@ -108,6 +109,8 @@ app.configure 'production', ->
 app.get '/', routes.index
 app.get '/client', routes.client
 app.get '/jobs', routes.jobs
+app.get '/jobs/new', routes.jobs_new
+app.post '/jobs/new', routes.jobs_new_process
 app.get '/status/:job_id', routes.status
 
 # Setup web server
