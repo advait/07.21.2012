@@ -3,7 +3,14 @@
 
 access_token = '2334787993255525024264726173982699884554'
 
-models = require("../models")
+models = require '../models'
+redis = require 'redis'
+connect = require 'connect'
+
+# Redis things
+redis_client = redis.createClient()
+RedisStore = require('connect-redis')(connect)
+session_store = new RedisStore {client: redis_client}
 
 exports.index = (req, res) ->
   console.log 'REQUEST'.red, req.user
@@ -45,7 +52,6 @@ generateReduction(key, value) {
 
 exports.jobs_new_process = (req, res) ->
   devid = if req.user? then req.user._id else if req.body.access == access_token then access_token else undefined
-  console.log devid
   new_job = new models.Job(
     name: req.body.name
     data_type: req.body.data_type
@@ -62,4 +68,5 @@ exports.jobs_new_process = (req, res) ->
     else
       res.send 'failure', 400
       console.log err
+  redis_client.rpush 'job_queue', String(devid)
 
