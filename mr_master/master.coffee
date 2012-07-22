@@ -23,9 +23,9 @@ MRStates =
 
 # Master constants
 constants =
-  R_JOB_QUEUE = 'job_queue'
-  R_PRESHUFFLE_CHUNK = 'preshuffle_chunk'
-  R_JOB_STATE = 'job_state'
+  R_JOB_QUEUE: 'job_queue'
+  R_PRESHUFFLE_CHUNK: 'preshuffle_chunk'
+  R_JOB_STATE: 'job_state'
 
 
 # Master class
@@ -48,7 +48,7 @@ class exports.Master
 
     # Get the next queued up job.
     console.log 'Looking for next queued job'.blue
-    @redis_client.blpop R_JOB_QUEUE, 0, (err, data) =>
+    @redis_client.blpop constants.R_JOB_QUEUE, 0, (err, data) =>
       # Make sure there aren't any errors.
       if (err)
         console.log err
@@ -67,7 +67,7 @@ class exports.Master
         @mapData()
 
   mapData: () ->
-    if (@state ! = MRStates.MAP_DATA)
+    if (@state != MRStates.MAP_DATA)
       console.log err
       return
 
@@ -80,7 +80,7 @@ class exports.Master
   # finishes mapping the chunk.
   mapChunk: (chunk_id) ->
     # Allocate a client.
-    @client_pool.pop (client) ->
+    @client_pool.pop (client) =>
       dc_handler = () ->
         console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
         mapChunk chunk_id
