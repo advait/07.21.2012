@@ -7,8 +7,15 @@ block scripts
   != js('client')
 
 block content
-  if context.user
+  div.container
+    div.row
+      div.span12
+        div.hero-unit
+          h1 Compucius say do more
+          p Javascript mapreduce
+          button#play-button.btn.btn-large.btn-primary Launch Worker
+  if user
     p
-      h2 Welcome #{context.user.name}!
+      h2 Welcome #{user.name}!
       ul
-        li user/fb id: #{context.user.id}
+        li user/fb id: #{user.id}
