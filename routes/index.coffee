@@ -14,8 +14,19 @@ session_store = new RedisStore {client: redis_client}
 
 exports.index = (req, res) ->
   console.log 'REQUEST'.red, req.user
+  sayings = [
+    'A friend asks only for your time, not your money.'
+    'A friend asks only for your time, not your money.'
+    'Your infinite capacity for patience will be rewarded sooner or later.'
+    'Fortune Not Found: Abort, Retry, Ignore?'
+    'Time is precious, but truth is more precious than time.'
+    'There is no wisdom greater than kindness.'
+    'The sure way to predict the future is to invent it.'
+  ]
+  saying = sayings[Math.floor(Math.random()*sayings.length)]
   res.render "index",
     title: 'Home'
+    saying: saying
 
 exports.jobs = (req, res) ->
   if !req.user?

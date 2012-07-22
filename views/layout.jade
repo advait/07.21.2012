@@ -35,13 +35,27 @@ html
             ul.nav.pull-right
               if everyauth.loggedIn 
                 li
-                  a(href="/account") Hello, #{user.name}!
+                  a(href="#") Hello, #{user.name}!
                 li
                   a(href="/logout") Logout
               else
                 li
                   a(href="/auth/facebook") Login
 
-
     // Content
     block content
+
+    div.container
+      div.row
+        div.span12
+          footer#footer
+            p © 2012 
+              a(href="http://www.advait.info/", target="_blank") Advait Shinde
+              | , 
+              a(href="http://www.linkedin.com/in/markvismonte", target="_blank") Mark Vismonte
+              | , 
+              a(href="http://www.linkedin.com/in/prestonchan", target="_blank") Preston Chan
+              | , 
+              a(href="http://www.stevenla.com", target="_blank") Steven La
+            p Check out our other project, 
+              a(href="http://www.courserail.com", target="_blank") CourseRail

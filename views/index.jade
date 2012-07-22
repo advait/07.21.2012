@@ -13,9 +13,11 @@ block content
       div.span9
         div.hero-unit
           h2 Compucius say...
-          h1 A friend asks only for your time, not your money.
+          h1=saying
           p Use your friend's spare cycles to <strong>do your bidding</strong> in JavaScript.
           if user
+            button.play-button.btn.btn-large Create Jobs
+            | 
             button.play-button.btn.btn-large.btn-primary Launch Worker
           else
-            a.btn.btn-large.btn-primary(href="/auth/login") Login with Facebook
+            a.btn.btn-large.btn-primary(href="/auth/facebook") Login with Facebook
