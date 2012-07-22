@@ -152,7 +152,6 @@ sio_lame.sockets.on 'connection', (socket) ->
     # Subscribe to job
     subscription.subscribe 'job:'+job_id
     subscription.on 'message', (channel, data) ->
-      console.log data
       socket.emit job_id+'', data
 
   # Close subscription before we close socket
