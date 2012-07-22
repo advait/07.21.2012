@@ -6,12 +6,15 @@ exports.mongoose = mongoose
 
 # Jobs
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
+  name:
+    type: String
+
   state:
     type: String
     enum: ['queued', 'in-progress', 'done', 'failed']
-    required: true
+    default: 'queued'
 
-  devId:
+  dev_id:
     type: Number
     ref: 'User'
 

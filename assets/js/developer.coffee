@@ -6,7 +6,7 @@ update = (job_id) ->
   knob = $('#knob-' + job_id)
   knob.knob()
 
-  $.getJSON('/jobs/3241', (data) ->
+  $.getJSON('/status/3241', (data) ->
     knob.val(data.progress)
     knob.trigger 'change'
     knob.trigger 'configure',
