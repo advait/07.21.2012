@@ -1,8 +1,8 @@
-var models = require('../models');
-/*
- * GET home page.
- */
+# index.coffee
+# Copyright 2012 Compucius
 
-exports.index = function(req, res){
-  res.render('index', { title: 'Express' });
-};
+models = require("../models")
+
+exports.index = (req, res) ->
+  res.render "index",
+    title: "Express"

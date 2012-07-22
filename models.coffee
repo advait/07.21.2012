@@ -1,3 +1,6 @@
+# models.coffee
+# Copyright 2012 Compucius
+
 mongoose = require 'mongoose'
 
 # Connect to the database
