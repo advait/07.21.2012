@@ -10,6 +10,7 @@ io = require 'socket.io'
 redis = require 'redis'
 
 # App imports.
+client = require('./client')
 master = require './master'
 models = require '../models'
 
@@ -17,8 +18,7 @@ models = require '../models'
 redis_client = redis.createClient()
 RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
-Client = require('./client').Client
-free_clients = []
+client_pool = new client.ClientPool()
 
 # Create socket for all clients to connect to.
 sio = io.listen 8001
@@ -40,42 +40,41 @@ sio.set 'authorization', (data, accept) ->
 
 sio.sockets.on 'connection', (socket) ->
 
-  socket.on 'disconnect', ->
-    # Remove client from free queue
-    Array::remove = (e) -> @[t..t] = [] if (t = @indexOf(e)) > -1
-    free_clients.remove client for client in free_clients when client.socket is socket
-
-    # Remove reassign the client's assigned chunk/shard
-    
   hs = socket.handshake
-
   # Create new Client and add it to the free clients
-  newClient = new Client socket, hs.session.auth.facebook.user.id
-  free_clients.push newClient
+  newClient = new client.Client socket, hs.session.auth.facebook.user.id
+  client_pool.push newClient
   console.log "Socket from #{hs.session.auth.facebook.user.name}".green
 
+  socket.on 'disconnect', ->
+    # Remove client from free queue
+    client_pool.remove newClient
+
+
 # Create a master worker
-mt = new master.Master []
+mt = new master.Master client_pool
 mt.startJob()
 
 # Create new job
+###
 models.Job.findById '500b94232536fac671000001', (err, doc) ->
   console.log doc
   doc.state = 'queued'
   doc.type = 'text'
   doc.save()
 ###
+###
 job = new models.Job()
 job.state = 'queued'
 job.devId = 1055790603
 job.code = '
-map = function(chunkId, chunk) {
+Compucius.map = function(chunk) {
   for (var i = 0; i < chunk.length; i++) {
     emitMapItem(chunk[i], 1);
   }
 };
 
-reduce = function(key, values) {
+Compucius.reduce = function(key, values) {
   s = 0;
   for (var i = 0; i < values.length; i++) {
     s += values[i];
@@ -93,4 +92,5 @@ job.shard_count = 2;
 console.log 'trying to save'
 job.save (err, some) ->
   console.log err
-  console.log some ###
+  console.log some
+###

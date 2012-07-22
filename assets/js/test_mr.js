@@ -12,7 +12,7 @@ Compucius.generateChunk = function(chunkId) {
 };
 
 
-Compucius.map = function(chunkId, chunk) {
+Compucius.map = function(chunk) {
   for (var i = 0; i < chunk.length; i++) {
     emitMapItem(chunk[i], 1);
   }
