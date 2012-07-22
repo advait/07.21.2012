@@ -37,6 +37,7 @@ class exports.Master
     @state = MRStates.START
     @job = null
     @num_map_chunks_done = 0
+    @num_shards_done = 0
 
   startJob: () ->
     # Ensure correct state.
@@ -74,6 +75,7 @@ class exports.Master
       return
 
     console.log "Job #{@job._id}: @ Map Data".blue
+    @redis_client.set "job:#{@job._id}:start_time", new Date()
     # Call mapChunk for each chunk
     @num_map_chunks_done = 0
     for i in [0..@job.data.length - 1]
@@ -125,6 +127,7 @@ class exports.Master
   mapFinish: () ->
     @num_map_chunks_done += 1
 
+    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state, "chunks_done": @num_map_chunks_done}
     console.log "Mappers finished: #{@num_map_chunks_done}".red
     if (@num_map_chunks_done == @job.data.length)
       @updateState MRStates.PRE_SHUFFLE_DATA
@@ -167,15 +170,17 @@ class exports.Master
   shuffleReduceShard: (shard_id) ->
     @client_pool.pop (client) =>
       socket = client.socket
-      dc_handler = () ->
+      dc_handler = () =>
         console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
-        shuffleReduceShard shard_id
+        @shuffleReduceShard shard_id
 
       socket.on 'reduce_data_recieve', (data) =>
+        console.log 'one'.red
         tmp_store = "job:#{@job._id}:result"
         @redis_client.hset tmp_store, data.key, data.value
 
       socket.on 'done_reduce', (data) =>
+        console.log 'two'.red
         @redis_client.del "job:#{@job._id}:shard:#{shard_id}"
         socket.removeListener 'disconnect', dc_handler
         socket.removeAllListeners 'done_reduce'
@@ -185,6 +190,7 @@ class exports.Master
 
       socket.on 'disconnect', dc_handler
 
+      console.log 'three'.red
       tmp_store = "job:#{@job._id}:shard:#{shard_id}"
       @redis_client.lrange tmp_store, 0, -1, (err, shard) =>
         if (err)
@@ -200,6 +206,7 @@ class exports.Master
   shuffleReduceFinish: () ->
     @num_shards_done += 1
 
+    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state, "shards_done": @num_shards_done}
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == @job.data.length)
       @redis_client.hgetall "job:#{@job._id}:result", (result) =>
@@ -207,6 +214,7 @@ class exports.Master
         @job.save()
         @redis_client.del "job:#{@job._id}:result"
         @updateState MRStates.DONE
+        @done()
 
 
   done: () ->
@@ -216,4 +224,5 @@ class exports.Master
     r_key = "job:{@job._id}:state"
     @redis_client.set r_key, @state
     console.log "Job #{@job._id} new state: #{@state}".green
+    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state}
 

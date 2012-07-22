@@ -17,6 +17,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   dev_id:
     type: Number
     ref: 'User'
+    index: true
 
   code:
     type: String
@@ -33,8 +34,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
     type: Number
     default: 0
 
-  result:
-    type: {}
+  result: {}
 )
 
 # Users

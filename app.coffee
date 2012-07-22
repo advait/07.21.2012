@@ -120,4 +120,42 @@ app.listen 8000, ->
 # Setup socket.io
 sio_lame = io.listen app
 sio_lame.set 'authorization', (data, accept) ->
-  accept 'Cant make connections to this socket', false
+  # Only accept incoming sockets if we have a cookie
+  if not data.headers.cookie?
+    accept 'No cookies transmitted.', false  # Reject socket
+  else
+    data.cookie = cookie.parse data.headers.cookie
+    data.sid = data.cookie['connect.sid']
+    data.session_store = session_store
+    session_store.get data.sid, (err, session) ->
+      if err or not session? or not session.auth?
+        console.log 'REJECTING'
+        accept err, false  # Reject socket
+      else
+        data.session = new connect.middleware.session.Session data, session
+        accept null, true  # Accept socket
+
+# Sockets to watch job
+sio_lame.sockets.on 'connection', (socket) ->
+  hs = socket.handshake
+  console.log 'Socket received'.green
+  subscription = null
+
+  # data = job id
+  socket.on 'watch job', (data) ->
+    console.log "watching #{data}".green
+    job_id = data
+    subscription = redis.createClient()
+    RedisStore_x = require('connect-redis')(connect)
+    session_store_x = new RedisStore {client: redis_client}
+
+    # Subscribe to job
+    subscription.subscribe 'job:'+job_id
+    subscription.on 'message', (channel, data) ->
+      console.log data
+      socket.emit 'message', data
+
+  # Close subscription before we close socket
+  socket.on 'disconnect', () ->
+    if subscription?
+      subscription.quit()
