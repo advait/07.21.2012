@@ -45,7 +45,10 @@ exports.client = (req, res) ->
 exports.result = (req, res) ->
   models.Job.findById req.params.id, (err, doc) ->
     console.log doc
-    res.send(doc)
+    res.send {
+      name: doc.name
+      results: doc.results
+    }
 
 exports.jobs_new = (req, res) ->
   default_code = """
@@ -64,11 +67,11 @@ generateReduction(key, value) {
   res.render 'new_job',
     title: 'New Job'
     default_code: default_code
-
+    
 exports.jobs_new_process = (req, res) ->
   # Chunk the data
   if (req.body.data_type == 'text')
-    num_chunks = req.body.num_chunks
+    if req.body.num_chunks? then num_chunks = req.body.num_chunks else num_chunks = 10
     data_chunks = []
     local_chunk = []
     lines = req.body.data.split '\n'

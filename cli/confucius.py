@@ -29,6 +29,9 @@ def main():
   parser.add_argument('-c', '--num-chunks', dest='num_chunks', type=int,
       default=10,
       help="How many chunks to use in the mapping stage.")
+  parser.add_argument('-r', '--result', dest='result', type=int,
+      default=10,
+      help="How many chunks to use in the mapping stage.")
   
   args = parser.parse_args()
 
@@ -65,7 +68,7 @@ def main():
   time_stamp = time.mktime(d.timetuple())
 
   new_job = {
-      'name': str(time_stamp),
+      'name': os.path.split(data_file_names[0])[1],
       'data_type': data_type,
       'data': data,
       'code': code,
