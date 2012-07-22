@@ -19,7 +19,7 @@ $ ->
           knob.val states.chunks_done
         knob.trigger 'change'
         knob.trigger 'configure',
-          'max': '4'
+          'max': '10'
           'fgColor': 'purple'
         knob.trigger 'change'
       # Pre shuffle phase

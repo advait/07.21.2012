@@ -1,6 +1,9 @@
 // layout.jade
 // Base layout for everything!
 // Copyright 2012 Compucius
+
+- var page = String(title)
+
 doctype 5
 html
   head
@@ -12,7 +15,7 @@ html
     != js('bootstrap.min')
     != js('script')
     block scripts
-  body
+  body(id=page)
     // Navbar
     div.navbar.navbar-fixed-top
       div.navbar-inner
@@ -25,9 +28,7 @@ html
           div.nav-collapse.collapse
             ul.nav.pull-left
               li
-                a(href="/") Dashboard
-              li
-                a(href="/jobs") Developer
+                a(href="/jobs") Your Jobs
               if user
                 li
                   a.play-button(href="#") Launch Worker
