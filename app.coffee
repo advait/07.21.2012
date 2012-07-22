@@ -11,6 +11,7 @@ http = require 'http'
 io = require 'socket.io'
 redis = require 'redis'
 routes = require './routes'
+readymade = require 'readymade'
 
 
 # Redis things
@@ -60,6 +61,9 @@ app.configure ->
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'jade'
   app.set 'view options', {layout: false}
+  # For auto-compiling LESS
+  app.use readymade.middleware (root: 'public')
+
   # Middleware
   app.use express.favicon()
   app.use express.logger('dev')

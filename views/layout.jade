@@ -31,8 +31,15 @@ html
               li
                 a(href="/dev") Developer
             ul.nav.pull-right
-              li
-                a Hello, steven!
+              if user
+                li
+                  a(href="/account") Hello, #{user.name}!
+                li
+                  a(href="/logout") Logout
+              else
+                li
+                  a(href="/auth/facebook") Login
+
 
     // Content
     div.container
