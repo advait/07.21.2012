@@ -135,19 +135,25 @@ sio_lame.set 'authorization', (data, accept) ->
         data.session = new connect.middleware.session.Session data, session
         accept null, true  # Accept socket
 
+# Sockets to watch job
 sio_lame.sockets.on 'connection', (socket) ->
   hs = socket.handshake
   console.log 'Socket received'.green
+  subscription = null
 
+  # data = job id
   socket.on 'watch job', (data) ->
+    console.log 'watching'.green
     job_id = Number(data)
     subscription = redis.createClient()
     RedisStore_x = require('connect-redis')(connect)
     session_store_x = new RedisStore {client: redis_client}
+
     # Subscribe to job
-    subscription.subscribe 'job:'+data
+    subscription.subscribe 'job:'+job_id
     subscription.on 'message', (data) ->
       socket.emit 'message', data
 
+  # Close subscription before we close socket
   socket.on 'disconnect', () ->
     subscription.quit()
