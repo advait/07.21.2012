@@ -65,27 +65,33 @@ exports.jobs_new_process = (req, res) ->
     for line in lines
       local_chunk.push line
       if local_chunk.length >= chunk_size
-        #        if data_chunks.length != num_chunks - 1
         data_chunks.push local_chunk.join '\n'
         local_chunk = []
     data_chunks.push local_chunk.join '\n'
 
-  devid = if req.user? then req.user._id else if req.body.access == access_token then access_token else undefined
-  new_job = new models.Job(
-    name: req.body.name
-    data_type: req.body.data_type
-    data: data_chunks
-    code: req.body.code
-    shard_count: Number(req.body.shard_count)
-    dev_id: devid
-  )
-  console.log req.body
-  new_job.save (err) ->
-    if !err
-      # success
-      res.send 'success', 200
-      redis_client.rpush 'job_queue', String(new_job._id)
-    else
+  devid = if req.user? then req.user._id else if req.body.uid then req.body.uid
+  models.User.findById devid, (err, usr)->
+    if (err)
+      consol.log err
+      return
+    if (!usr?)
       res.send 'failure', 400
-      console.log err
+      return
 
+    new_job = new models.Job(
+      name: req.body.name
+      data_type: req.body.data_type
+      data: data_chunks
+      code: req.body.code
+      shard_count: Number(req.body.shard_count)
+      dev_id: devid
+    )
+
+    new_job.save (err) ->
+      if !err
+        # success
+        res.send 'success', 200
+        redis_client.rpush 'job_queue', String(new_job._id)
+      else
+        res.send 'failure', 400
+        console.log err

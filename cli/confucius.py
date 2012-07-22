@@ -22,6 +22,8 @@ def main():
   parser.add_argument('-s', '--shard-count', dest='shard_count', type=int,
       default=5,
       help="The number of shards to distribute map output to. Default: 5")
+  parser.add_argument('-u', '--uid', dest='user_id', type=int,
+      help="The user id you wish to submit as")
 
   
   args = parser.parse_args()
@@ -64,8 +66,9 @@ def main():
       'data': data,
       'code': code,
       'shard_count': str(args.shard_count),
-      'access': ACCESS_TOKEN
   }
+  if args.user_id:
+    new_job['uid'] = args.user_id
   
   headers = {"Content-type": "application/x-www-form-urlencoded",
                   "Accept": "text/plain"}
