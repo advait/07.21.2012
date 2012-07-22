@@ -11,6 +11,7 @@ html
     != js('http://local.host:8000/socket.io/socket.io')
     != js('jquery-1.7.2.min')
     != js('bootstrap.min')
+    != js('script')
     block scripts
   body
     // Navbar
@@ -27,9 +28,9 @@ html
               li
                 a(href="/") Dashboard
               li
-                a(href="/client") Client
-              li
                 a(href="/jobs") Developer
+              li
+                a.play-button(href="#") Launch Worker
             ul.nav.pull-right
               if everyauth.loggedIn 
                 li

@@ -4,8 +4,6 @@
 extends layout
 
 block scripts
-  != js('client')
-  != js('webworker')
 
 block content
   div.container
@@ -14,7 +12,7 @@ block content
         div.hero-unit
           h1 Compucius say do more
           p Javascript mapreduce
-          button#play-button.btn.btn-large.btn-primary Launch Worker
+          button.play-button.btn.btn-large.btn-primary Launch Worker
   if user
     p
       h2 Welcome #{user.name}!

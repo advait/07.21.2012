@@ -158,14 +158,14 @@ class exports.Master
       socket = client.socket
       dc_handler = () =>
         console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
-        shuffleReduceShard shard_id
+        @shuffleReduceShard shard_id
 
-      socket.on 'reduce_data_recieve', (data) ->
+      socket.on 'reduce_data_recieve', (data) =>
         console.log 'one'.red
         tmp_store = "job:#{@job._id}:result"
         @redis_client.hset tmp_store, data.key, data.value
 
-      socket.on 'done_reduce', (data) ->
+      socket.on 'done_reduce', (data) =>
         console.log 'two'.red
         @redis_client.del "job:#{@job._id}:shard:#{shard_id}"
         socket.removeListener 'disconnect', dc_handler
