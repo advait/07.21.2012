@@ -4,7 +4,7 @@
 mongoose = require 'mongoose'
 
 # Connect to the database
-mongoose.connect('mongodb://compucius:bruin@localhost/compucius');
+mongoose.connect('mongodb://compucius:bruin@local.host/compucius');
 
 # Jobs 
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
