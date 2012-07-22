@@ -20,7 +20,7 @@ exports.index = (req, res) ->
 exports.jobs = (req, res) ->
   if !req.user?
     res.send('must be logged in')
-  models.Job.find {'dev_id': Number(req.user._id)}, (err, jobs) ->
+  models.Job.find {}, (err, jobs) ->
     if jobs.length == 0
       console.log 'couldnt find'.red
     else
@@ -83,5 +83,5 @@ exports.jobs_new_process = (req, res) ->
     else
       res.send 'failure', 400
       console.log err
-  redis_client.rpush 'job_queue', String(devid)
+  redis_client.rpush 'job_queue', String(new_job._id)
 

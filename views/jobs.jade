@@ -18,7 +18,7 @@ block content
     div.row
       div#knobs.span12
         - jobs.forEach(function(job) {
-          div.job.pull-left(id=job._id)
+          div.job.pull-left(id=job._id, class=job.state)
             h3=job.name
             h4.state=job.state
             input.knob(type='text', data-readonly='true', data-thickness='.15')
