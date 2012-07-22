@@ -56,11 +56,13 @@ mt = new master.Master client_pool
 mt.startJob()
 
 # Create new job
+###
 models.Job.findById '500b94232536fac671000001', (err, doc) ->
   console.log doc
   doc.state = 'queued'
   doc.type = 'text'
   doc.save()
+###
 ###
 job = new models.Job()
 job.state = 'queued'

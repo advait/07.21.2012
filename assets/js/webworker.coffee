@@ -30,8 +30,9 @@ crc32 = (->
 )()
 
 # Cleanly load a script and remove top_level items except for purpose
-clean_load = (url, purpose) ->
-  importScripts url
+clean_load = (code, purpose) ->
+  #importScripts url
+  eval code
   for f of Compucius
     if f != purpose
       Compucius[f] = undefined
@@ -47,13 +48,12 @@ worker_handler =
 
   # Starts a map step!
   start_map: (o) ->
-    script = o.script
-    chunk_id = o.chunk_id
+    code = o.code
     chunk = o.chunk
     self.shard_count = o.shard_count
     # Load script
-    clean_load script, 'map'
-    Compucius.map chunk_id, chunk  # Perform map
+    clean_load code, 'map'
+    Compucius.map chunk  # Perform map
     self.compuciusSend 'done_map'
 
   # Starts a reduce step!
