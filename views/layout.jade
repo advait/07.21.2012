@@ -4,7 +4,7 @@
 doctype 5
 html
   head
-    title= 'Compucius - ' + title
+    title= 'Compucius - ' + context.title
     != css('bootstrap.min')
     != css('bootstrap-responsive.min')
     != css('style')
@@ -31,9 +31,9 @@ html
               li
                 a(href="/dev") Developer
             ul.nav.pull-right
-              if user
+              if everyauth.loggedIn 
                 li
-                  a(href="/account") Hello, #{user.name}!
+                  a(href="/account") Hello, #{everyauth.facebook.user.name}!
                 li
                   a(href="/logout") Logout
               else

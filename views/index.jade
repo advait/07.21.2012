@@ -4,9 +4,8 @@
 extends layout
 
 block content
-  if everyauth.loggedIn
+  if context.user
     p
-      h2 Welcome #{everyauth.facebook.user.name}!
+      h2 Welcome #{context.user.name}!
       ul
-        li user/fb id: #{everyauth.facebook.user.id}
-        li user: #{JSON.stringify(everyauth.facebook.user)}
+        li user/fb id: #{context.user.id}
