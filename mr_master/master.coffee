@@ -230,7 +230,7 @@ class exports.Master
 
   updateState: (newState) ->
     @state = newState
-    r_key = "job:{@job._id}:state"
+    r_key = "job:#{@job._id}:state"
     @redis_client.set r_key, @state
     console.log "Job #{@job._id} new state: #{@state}".green
 
