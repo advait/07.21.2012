@@ -183,11 +183,20 @@ class exports.Master
         shuffleReduceShard shard_id
 
       socket.on 'reduce_data_recieve', (data) =>
+        #console.log 'hi'.red
         console.log 'REDUCE DATA REC'.blue, data
         tmp_store = "job:#{@job._id}:result"
-        @redis_client.hset tmp_store, data.key, data.value
+        if not @job.results
+          @job.results = []
+        @job.results.push {
+          key: data.key
+          value: data.value
+        }
+        @job.save (err) ->
+          console.log err
 
       socket.on 'done_reduce', (data) =>
+        console.log 'DONE'.red
         @redis_client.del "job:#{@job._id}:shard:#{shard_id}"
         socket.removeListener 'disconnect', dc_handler
         socket.removeAllListeners 'done_reduce'
@@ -208,18 +217,13 @@ class exports.Master
           code: @job.code
           data: shard
         }
-        
+
   shuffleReduceFinish: () ->
     @num_shards_done += 1
 
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == @job.data.length)
-      @redis_client.hgetall "job:#{@job._id}:result", (result) =>
-        @job.result = result
-        console.log result
-        @job.save()
-        @redis_client.del "job:#{@job._id}:result"
-        @updateState MRStates.DONE
+      @updateState MRStates.DONE
 
 
   done: () ->

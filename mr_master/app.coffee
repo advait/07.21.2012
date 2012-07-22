@@ -57,16 +57,19 @@ mt.startJob()
 
 # Create new job
 ###
-models.Job.findById '500b94232536fac671000001', (err, doc) ->
+models.Job.findById '500bc33a6710e9615d000001', (err, doc) ->
   console.log doc
   doc.state = 'queued'
   doc.type = 'text'
+  doc.results = []
   doc.save()
 ###
 ###
 job = new models.Job()
 job.state = 'queued'
 job.devId = 1055790603
+job.results = []
+job.markModified 'result'
 job.code = '
 Compucius.map = function(chunk) {
   for (var i = 0; i < chunk.length; i++) {
