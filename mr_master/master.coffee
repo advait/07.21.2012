@@ -65,8 +65,11 @@ class exports.Master
         console.log "Found this job"
         console.log doc
         @job = doc
+        if @job.state != 'queued'
+          return @startJob()  # Get a new job if it isn't marked queued
+        @job.state = 'in-progress'
+        @job.save()
         @updateState MRStates.MAP_DATA
-
         @mapData()
 
   mapData: () ->
@@ -167,7 +170,6 @@ class exports.Master
             if (num_finished < @job.shard_count *  @job.data.length)
               return
 
-
             @updateState MRStates.SHUFFLE_REDUCE_DATA
             @num_shards_done = 0
             for z in [0..@job.shard_count - 1]
@@ -226,11 +228,15 @@ class exports.Master
 
     @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state, "shards_done": @num_shards_done}
     console.log "Shards finished: #{@num_shards_done}".red
-    if (@num_shards_done == @job.data.length)
+    if (@num_shards_done == Number(@job.shard_count))
       @updateState MRStates.DONE
-
+      @done()
 
   done: () ->
+    @job.state = 'done'
+    @job.save()
+    @updateState MRStates.START
+    @startJob()
 
   updateState: (newState) ->
     @state = newState

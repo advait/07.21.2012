@@ -58,10 +58,10 @@ worker_handler =
 
   # Starts a reduce step!
   start_reduce: (o) ->
-    script = o.script
+    code = o.code
     tuples = o.tuples
     # Load script
-    clean_load script, 'reduce'
+    clean_load code, 'reduce'
     # Shuffle!
     d = {}
     for tuple in tuples
