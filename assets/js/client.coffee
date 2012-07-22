@@ -13,7 +13,7 @@ spawn_webworker = (handler) ->
     handler[event.data.command](event.data.data)
   return worker
 
-
+console.log = () ->
 worker_handler =
   log: (message) ->
     console.log 'WORKER SAYS', message

@@ -63,7 +63,6 @@ class exports.Master
           return
 
         console.log "Found this job"
-        console.log doc
         @job = doc
         if @job.state != 'queued'
           return @startJob()  # Get a new job if it isn't marked queued
@@ -187,7 +186,7 @@ class exports.Master
         @shuffleReduceShard shard_id
 
       socket.on 'reduce_data_recieve', (data) =>
-        console.log 'REDUCE DATA REC'.blue, data
+        # console.log 'REDUCE DATA REC'.blue, data
         tmp_store = "job:#{@job._id}:result"
         if not @job.results
           @job.results = []
