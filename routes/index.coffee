@@ -11,3 +11,7 @@ exports.index = (req, res) ->
 exports.jobs = (req, res) ->
   res.render 'jobs',
     title: 'Jobs'
+
+exports.client = (req, res) ->
+  res.render 'client',
+    title: 'Client'

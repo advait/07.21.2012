@@ -4,9 +4,6 @@
 mongoose = require 'mongoose'
 exports.mongoose = mongoose
 
-# Connect to the database
-mongoose.connect 'mongodb://local.host/compucius'
-
 # Jobs
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
   state:

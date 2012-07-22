@@ -9,12 +9,15 @@ everyauth = require 'everyauth'
 express = require 'express'
 http = require 'http'
 io = require 'socket.io'
-readymade = require 'readymade'
 redis = require 'redis'
+readymade = require 'readymade'
+mongoose = require 'mongoose'
 
 models = require './models'
 routes = require './routes'
 
+# Connect to the database
+mongoose.connect('mongodb://localhost/compucius')
 
 # Redis things
 redis_client = redis.createClient()
@@ -103,7 +106,9 @@ app.configure 'production', ->
 
 # Routes
 app.get '/', routes.index
+app.get '/client', routes.client
 app.get '/jobs', routes.jobs
+app.get '/status/:job_id', routes.status
 
 # Setup web server
 app.listen 8000, ->
