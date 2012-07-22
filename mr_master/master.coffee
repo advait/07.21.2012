@@ -65,8 +65,11 @@ class exports.Master
         console.log "Found this job"
         console.log doc
         @job = doc
+        if @job.state != 'queued'
+          return @startJob()  # Get a new job if it isn't marked queued
+        @job.state = 'in-progress'
+        @job.save()
         @updateState MRStates.MAP_DATA
-
         @mapData()
 
   mapData: () ->
@@ -227,9 +230,13 @@ class exports.Master
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == Number(@job.shard_count))
       @updateState MRStates.DONE
-
+      @done()
 
   done: () ->
+    @job.state = 'done'
+    @job.save()
+    @updateState MRStates.START
+    @startJob()
 
   updateState: (newState) ->
     @state = newState
