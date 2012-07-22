@@ -9,7 +9,7 @@ $ ->
     knob = $('#'+id+' .knob')
     socket = io.connect getSocketServerURL()
     socket.emit 'watch job', id
-    socket.on 'message', (data) ->
+    socket.on id, (data) ->
       states = JSON.parse data
       console.log states.state
       # Mapping phase
@@ -38,13 +38,14 @@ $ ->
           knob.val states.shards_done
         knob.trigger 'change'
         knob.trigger 'configure',
-          'max': 10
+          'max': 5
           'fgColor': 'blue'
         knob.trigger 'change'
       # Reduce phase
       if states.state == 5
         item.children('.state').text('done')
-        knob.val states.state*20
+        knob.val 100
+        knob.attr('value', 100)
         knob.trigger 'change'
         knob.trigger 'configure',
           'max': '100'
