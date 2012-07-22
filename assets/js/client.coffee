@@ -44,8 +44,10 @@ $ ->
   knob = $('#knob')
   knob.knob()
   spin_the_wheel = (amt=1) ->
-    console.log 'change'
-    knob.val((Number(knob.val()) + 1) % 100)
+    num = Number(knob.val())
+    num = (num+1) % 50
+    knob.val num
+    console.log num
     knob.trigger 'change'
   console.log "Hello world"
   url = getSocketServerURL()
