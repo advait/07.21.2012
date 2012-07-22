@@ -59,14 +59,15 @@ mt = new master.Master []
 mt.startJob()
 
 # Create new job
-models.Job.findById '500b859225fc5b6b55000001', (err, doc) ->
+models.Job.findById '500b94232536fac671000001', (err, doc) ->
   console.log doc
   doc.state = 'queued'
+  doc.type = 'text'
   doc.save()
 ###
 job = new models.Job()
 job.state = 'queued'
-job.devId = 1054530821
+job.devId = 1055790603
 job.code = '
 map = function(chunkId, chunk) {
   for (var i = 0; i < chunk.length; i++) {
@@ -92,7 +93,4 @@ job.shard_count = 2;
 console.log 'trying to save'
 job.save (err, some) ->
   console.log err
-  console.log some###
-
-mt = new master.Master []
-mt.startJob()
+  console.log some ###
