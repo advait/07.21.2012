@@ -1,5 +1,5 @@
-# Greylocku!
-# TODO: get a name
+# compuci.us
+# COMPUCIUS SAY THIS IS OUR SERVER
 
 colors = require 'colors'
 connect = require 'connect'
@@ -9,31 +9,30 @@ everyauth = require 'everyauth'
 express = require 'express'
 http = require 'http'
 io = require 'socket.io'
+redis = require 'redis'
 routes = require './routes'
 
+
+# Redis things
+redis_client = redis.createClient()
+RedisStore = require('connect-redis')(connect)
+session_store = new RedisStore {client: redis_client}
 
 # Create server
 app = module.exports = express.createServer()
 
 # Store users and sessions in local memory
 # TODO: MOVE THESE TO REDIS!
-session_store = new connect.middleware.session.MemoryStore()
 app.users = {}
 
 # Setup everyauth facbeook
-em = everyauth.everymodule
+#em = everyauth.everymodule
 fb = everyauth.facebook
 fb.appId '422148541157960'
 fb.appSecret '8e5f5afc2d8a3eacd20604b4c6047442'
 fb.entryPath('/auth/facebook')
 fb.callbackPath('/auth/facebook/callback')
 fb.scope('email')
-em.findUserById (id, callback) ->
-  # TODO: Make this work through redis
-  if not app.users[id]?
-    callback 'User not found'
-  else
-    callback null, app.users[id]
 fb.handleAuthCallbackError (req, res) ->
   # If a user denies your app, Facebook will redirect the user to
   # /auth/facebook/callback?error_reason=user_denied&error=access_denied&error_description=The+user+denied+your+request.
@@ -43,15 +42,21 @@ fb.handleAuthCallbackError (req, res) ->
   # view notifying the user that their authentication failed and why.
   console.log 'FACBEOOK ERROR HAPPENED!'
 fb.findOrCreateUser (session, accessToken, accessTokExtra, fbUserMetadata) ->
-  # TODO move this to redis
-  app.users[fbUserMetadata.id] = fbUserMetadata
-  # This is a "promise", a function that returns the use in the future
-  promise = @Promise().fulfill fbUserMetadata
+  # TODO move this to mongo
+  promise = @Promise()
+  user_key = "user:#{fbUserMetadata.id}"
+  console.log 'REDIS GET'.blue
+  redis_client.hgetall user_key, (err, user) ->
+    if err? or not user?
+      # Insert user
+      user = fbUserMetadata
+      redis_client.hmset user_key, fbUserMetadata
+    promise.fulfill user
 fb.redirectPath '/'
 
 # App configuration
 app.configure ->
-  app.set 'port', process.env.PORT || 8000
+  app.set 'port', process.env.PORT ? 8000
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'jade'
   # Middleware
@@ -80,7 +85,7 @@ app.get '/', routes.index
 
 # Setup web server
 app.listen 8000, ->
-  console.log "Express server listening on port #{app.get('port')}"
+  console.log "Express server listening"
 
 # Setup socket.io
 sio = io.listen app

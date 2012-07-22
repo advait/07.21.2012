@@ -1,11 +1,11 @@
 h1= title
 p Welcome to #{title}
-if user
+if everyauth.loggedIn
   p
-    h2 Welcome #{user.name}!
+    h2 Welcome #{everyauth.facebook.user.name}!
     ul
-      li user/fb id: #{user.id}
-      li user: #{user}
+      li user/fb id: #{everyauth.facebook.user.id}
+      li user: #{everyauth.facebook.user}
   p
     a(href="/logout") Logout
 else
