@@ -50,50 +50,6 @@ sio.sockets.on 'connection', (socket) ->
     # Remove client from free queue
     client_pool.remove newClient
 
-
 # Create a master worker
 mt = new master.Master client_pool
 mt.startJob()
-
-# Create new job
-###
-models.Job.findById '500bc33a6710e9615d000001', (err, doc) ->
-  console.log doc
-  doc.state = 'queued'
-  doc.type = 'text'
-  doc.results = []
-  doc.save()
-###
-###
-job = new models.Job()
-job.state = 'queued'
-job.devId = 1055790603
-job.results = []
-job.markModified 'result'
-job.code = '
-Compucius.map = function(chunk) {
-  for (var i = 0; i < chunk.length; i++) {
-    emitMapItem(chunk[i], 1);
-  }
-};
-
-Compucius.reduce = function(key, values) {
-  s = 0;
-  for (var i = 0; i < values.length; i++) {
-    s += values[i];
-  }
-  emitReduction(key, s);
-};
-'
-job.data.push '
-hello world, i am a string that is really cool
-i hope that you have a GREAT day. MY knee hurts'
-job.data.push '
-whats wrong with the world mama am i really
-going to code this much? i think so, woo! ya'
-job.shard_count = 2;
-console.log 'trying to save'
-job.save (err, some) ->
-  console.log err
-  console.log some
-###

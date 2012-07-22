@@ -1,3 +1,5 @@
+#= require './util.coffee'
+
 update = (job_id) ->
   # Make or find the knob
   if $('#knob-' + job_id).length == 0
@@ -22,7 +24,7 @@ $ ->
     item = $(item)
     id = $(item).attr('id')
     knob = $('#'+id+' .knob')
-    socket = io.connect 'http://local.host:8000'
+    socket = io.connect getSocketServerURL()
     socket.emit 'watch job', id
     socket.on 'message', (data) ->
       states = JSON.parse data
