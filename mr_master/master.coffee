@@ -89,8 +89,7 @@ class exports.Master
       socket = client.socket
       dc_handler = () =>
         console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
-
-        mapChunk chunk_id
+        @mapChunk chunk_id
 
       # Delete all previous chunk/sharding keys.
       for i in [0..@job.data.length - 1]
@@ -162,7 +161,7 @@ class exports.Master
             # Incremented the number finished and move on with that shard if
             # you can.
             num_finished += 1
-            if (num_finished != (@job.shard_count - 1) *  (@job.data.length - 1))
+            if (num_finished < @job.shard_count *  @job.data.length)
               return
 
 
@@ -193,7 +192,8 @@ class exports.Master
           value: data.value
         }
         @job.save (err) ->
-          console.log err
+          if err?
+            console.log err
 
       socket.on 'done_reduce', (data) =>
         console.log 'DONE'.red
@@ -217,7 +217,7 @@ class exports.Master
           code: @job.code
           data: shard
         }
-        
+
   shuffleReduceFinish: () ->
     @num_shards_done += 1
 

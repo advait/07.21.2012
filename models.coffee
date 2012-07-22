@@ -5,7 +5,7 @@ mongoose = require 'mongoose'
 exports.mongoose = mongoose
 
 MrResult = new mongoose.Schema(
-  _id:
+  key:
     type: String
     required: true
 
