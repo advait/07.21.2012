@@ -4,7 +4,7 @@
 mongoose = require 'mongoose'
 
 # Connect to the database
-mongoose.connect('mongodb://compucius:bruin@local.host/compucius');
+mongoose.connect('mongodb://local.host/compucius');
 
 # Jobs 
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
@@ -13,7 +13,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
     enum: ['queued', 'in-progress', 'done', 'failed']
     required: true
 
-  devId:
+  dev_id:
     type: mongoose.Schema.ObjectId
     ref: 'User'
 
@@ -25,18 +25,21 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
     type: String
     default: ''
 
-  shardCount:
+  shard_count:
     type: Number
     default: 0
 )
 
 # Users
-exports.User = mongoose.model 'User', new mongoose.Schema(
-  firstName:
+UserSchema = new mongoose.Schema(
+  _id:
+    type: String
+
+  first_name:
     type: String
     required: true
 
-  lastName:
+  last_name:
     type: String
     required: true
 
@@ -44,14 +47,17 @@ exports.User = mongoose.model 'User', new mongoose.Schema(
     type: String
     required: true
 
-  fbAccessToken:
+  fb_access_token:
     type: String
 
-  fbId:
-    type: Number
+  is_developer:
+    type: Boolean
+    default: false
 
   credits:
     type: Number
     default: 0
-    required: true
 )
+UserSchema.virtual('name').get () ->
+  return this.first_name + ' ' + this.last_name
+exports.User = mongoose.model 'User', UserSchema
