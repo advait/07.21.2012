@@ -1,6 +1,8 @@
 # index.coffee
 # Copyright 2012 Compucius
 
+access_token = '2334787993255525024264726173982699884554'
+
 models = require("../models")
 
 exports.index = (req, res) ->
@@ -9,8 +11,15 @@ exports.index = (req, res) ->
     title: 'Jobs'
 
 exports.jobs = (req, res) ->
-  res.render 'jobs',
-    title: 'Jobs'
+  if !req.user?
+    res.send('must be logged in')
+  models.Job.find {'dev_id': Number(req.user._id)}, (err, jobs) ->
+    if jobs.length == 0
+      console.log 'couldnt find'.red
+    else
+      res.render 'jobs',
+        title: 'Jobs'
+        jobs: jobs
 
 exports.client = (req, res) ->
   res.render 'client',
@@ -35,19 +44,22 @@ generateReduction(key, value) {
     default_code: default_code
 
 exports.jobs_new_process = (req, res) ->
+  devid = if req.user? then req.user._id else if req.body.access == access_token then access_token else undefined
+  console.log devid
   new_job = new models.Job(
     name: req.body.name
     data_type: req.body.data_type
     data: [req.body.data]
     code: req.body.code
     shard_count: Number(req.body.shard_count)
-    dev_id: req.user._id
+    dev_id: devid
   )
-  console.log req
-  console.log new_job
+  console.log req.body
   new_job.save (err) ->
     if !err
       # success
       res.send 'success', 200
     else
       res.send 'failure', 400
+      console.log err
+

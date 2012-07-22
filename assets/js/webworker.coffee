@@ -33,9 +33,9 @@ crc32 = (->
 clean_load = (code, purpose) ->
   #importScripts url
   eval code
-  for f of Compucius
-    if f != purpose
-      Compucius[f] = undefined
+  #for f of Compucius
+  #  if f != purpose
+  #    Compucius[f] = undefined
 
 worker_handler =
   salute: () ->
@@ -65,6 +65,7 @@ worker_handler =
     # Shuffle!
     d = {}
     for tuple in tuples
+      tuple = JSON.parse tuple
       key = tuple[0]
       value = tuple[1]
       if d[key]?

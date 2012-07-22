@@ -18,23 +18,19 @@ worker_handler =
 
   emit_map_item: (o) ->
     console.log 'EMITTING MAP ITEM', o
-    socket.emit 'map_data_receive', {
-      shard_id: o.shard_id,
-      key: o.key,
-      value: o.value
-    }
+    socket.emit 'map_data_receive', o
 
   done_map: ->
     console.log 'DONE MAPPING PHASE'
     socket.emit 'done_map'
 
   emit_reduction: (o) ->
-    key = o.key
-    value = o.value
     console.log 'EMITTING REDUCTION', o
+    socket.emit 'reduce_data_recieve', o
 
   done_reduce: ->
     console.log 'DONE REDUCING PHASE'
+    socket.emit 'done_reduce'
 
 $ ->
   console.log "Hello world"
@@ -44,11 +40,17 @@ $ ->
   worker.compuciusSend 'salute'
   socket.on 'start_job', (data) ->
     if data.type == 'map'
-      console.log "STARTING JOB", data
+      console.log "STARTING MAP JOB", data
       worker.compuciusSend 'start_map', {
         code: data.code
         chunk: data.data
         shard_count: data.num_shuffle_shards
+      }
+    else if data.type == 'reduce'
+      console.log "STARTING REDUCE JOB", data
+      worker.compuciusSend 'start_reduce', {
+        code: data.code
+        tuples: data.data
       }
 
 

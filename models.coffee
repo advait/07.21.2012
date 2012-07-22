@@ -4,6 +4,14 @@
 mongoose = require 'mongoose'
 exports.mongoose = mongoose
 
+MrResult = new mongoose.Schema(
+  key:
+    type: String
+    required: true
+
+  value: {}
+)
+
 # Jobs
 exports.Job = mongoose.model 'Job', new mongoose.Schema(
   name:
@@ -17,6 +25,7 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   dev_id:
     type: Number
     ref: 'User'
+    index: true
 
   code:
     type: String
@@ -33,8 +42,8 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
     type: Number
     default: 0
 
-  result:
-    type: {}
+  results:
+    type: [ MrResult ]
 )
 
 # Users
