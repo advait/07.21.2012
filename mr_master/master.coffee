@@ -37,6 +37,7 @@ class exports.Master
     @state = MRStates.START
     @job = null
     @num_map_chunks_done = 0
+    @num_shards_done = 0
 
   startJob: () ->
     # Ensure correct state.
@@ -74,7 +75,6 @@ class exports.Master
       return
 
     console.log "Job #{@job._id}: @ Map Data".blue
-    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state}
     @redis_client.set "job:#{@job._id}:start_time", new Date()
     # Call mapChunk for each chunk
     @num_map_chunks_done = 0
@@ -122,7 +122,6 @@ class exports.Master
         data_type: @job.data_type
         data: @job.data[chunk_id]
       }
-      @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state}
 
 
   mapFinish: () ->
@@ -132,7 +131,6 @@ class exports.Master
     console.log "Mappers finished: #{@num_map_chunks_done}".red
     if (@num_map_chunks_done == @job.data.length)
       @updateState MRStates.PRE_SHUFFLE_DATA
-      @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state}
       @preshuffleData()
 
   preshuffleData: () ->
@@ -140,7 +138,6 @@ class exports.Master
       console.log err
       return
 
-    @redis_client.publish "job:#{@job._id}", {"state": @state}
     for i in [0..@job.shard_count - 1]
       for j in [0..@job.data.length - 1]
         @redis_client.get "job:#{@job._id}:chunk:#{j}:#{i}", (err, reply) ->
@@ -151,24 +148,25 @@ class exports.Master
           @redis_client.rpush tmp_store, reply
 
     @updateState MRStates.SHUFFLE_REDUCE_DATA
-    @redis_client.publish "job:#{@job._id}", {"state": @state}
 
     @num_shards_done = 0
     for i in [0..@job.shard_count - 1]
-      shuffleReduceShard i
+      @shuffleReduceShard i
 
   shuffleReduceShard: (shard_id) ->
     @client_pool.pop (client) =>
       socket = client.socket
-      dc_handler = () ->
+      dc_handler = () =>
         console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
         shuffleReduceShard shard_id
 
       socket.on 'reduce_data_recieve', (data) ->
+        console.log 'one'.red
         tmp_store = "job:#{@job._id}:result"
         @redis_client.hset tmp_store, data.key, data.value
 
       socket.on 'done_reduce', (data) ->
+        console.log 'two'.red
         @redis_client.del "job:#{@job._id}:shard:#{shard_id}"
         socket.removeListener 'disconnect', dc_handler
         socket.removeAllListeners 'done_reduce'
@@ -178,7 +176,9 @@ class exports.Master
 
       socket.on 'disconnect', dc_handler
 
-      @redis_client.get "job:#{@job._id}:shard:#{shard_id}", (shard)->
+      console.log 'three'.red
+      console.log "job:#{@job._id}:shard:#{shard_id}"
+      @redis_client.get "job:#{@job._id}:shard:#{shard_id}", (shard) =>
         socket.emit 'start_job', {
           type: 'reduce'
           code: @job.code
@@ -200,11 +200,11 @@ class exports.Master
 
 
   done: () ->
-    @redis_client.publish "job:#{@job._id}", '{"state": #{MRStates.DONE}}'
 
   updateState: (newState) ->
     @state = newState
     r_key = "job:{@job._id}:state"
     @redis_client.set r_key, @state
     console.log "Job #{@job._id} new state: #{@state}".green
+    @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state}
 

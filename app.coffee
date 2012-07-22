@@ -144,14 +144,15 @@ sio_lame.sockets.on 'connection', (socket) ->
   # data = job id
   socket.on 'watch job', (data) ->
     console.log "watching #{data}".green
-    job_id = Number(data)
+    job_id = data
     subscription = redis.createClient()
     RedisStore_x = require('connect-redis')(connect)
     session_store_x = new RedisStore {client: redis_client}
 
     # Subscribe to job
     subscription.subscribe 'job:'+job_id
-    subscription.on 'message', (data) ->
+    subscription.on 'message', (channel, data) ->
+      console.log data
       socket.emit 'message', data
 
   # Close subscription before we close socket
