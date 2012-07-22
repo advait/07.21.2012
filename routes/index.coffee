@@ -17,12 +17,12 @@ exports.index = (req, res) ->
     'A friend asks only for your time, not your money.'
     'A friend asks only for your time, not your money.'
     'Your infinite capacity for patience will be rewarded sooner or later.'
-    'Fortune Not Found: Abort, Retry, Ignore?'
+    'The sure way to predict the future is to invent it.'
     'Time is precious, but truth is more precious than time.'
     'There is no wisdom greater than kindness.'
-    'The sure way to predict the future is to invent it.'
+    'Fortune Not Found: Abort, Retry, Ignore?'
   ]
-  saying = sayings[Math.floor(Math.random()*sayings.length)]
+  saying = sayings[Math.floor(Math.random()*(sayings.length-1))]
   res.render "index",
     title: 'Home'
     saying: saying
