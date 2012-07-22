@@ -1,0 +1,46 @@
+// developer.jade
+// Copyright 2012 Compucius
+
+extends layout
+
+block scripts
+  != js('new_job')
+
+block content
+  div.container
+    div.row
+      div.span12
+        div.page-header
+          h1 New Job
+    div.row
+      div.span8
+        form#new-job.form-horizontal
+          fieldset
+            div.control-group
+              label.control-label(for="name") Name
+              div.controls
+                input.input-xxlarge#name(type="text")
+            div.control-group
+              label.control-label(for="shard_count") Number of Shards 
+              div.controls
+                input.input-xxlarge#shard_count(type="text", value="10")
+            div.control-group
+              label.control-label(for="data_type") Data Type
+              div.controls
+                select#data_type
+                  option(value="json") JSON
+                  option(value="text") Plain text/CSV
+            div.control-group
+              label.control-label(for="data") Data
+              div.controls
+                textarea#data.input-xxlarge
+            div.control-group
+              label.control-label(for="code") Code
+              div.controls
+                textarea#code.input-xxlarge #{default_code}
+      div.span4
+        div#alerts
+          div#invalid.alert.hide
+            button.close(data-dismiss="alert") x
+            | <strong>Code is invalid</strong>
+        a#new-submit.btn.btn-primary.btn-large(href="#") DO WERK
