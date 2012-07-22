@@ -8,7 +8,7 @@ import urllib2
 import httplib
 import time, datetime
 
-BASE_URL = "local.host:8000"
+BASE_URL = "localhost:8000"
 NEW_JOB_PATH =  "/jobs/new"
 ACCESS_TOKEN = '2334787993255525024264726173982699884554'
 

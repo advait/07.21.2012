@@ -36,7 +36,9 @@ worker_handler =
 
 $ ->
   console.log "Hello world"
-  socket = io.connect getSocketServerURL()
+  url = getSocketServerURL()
+  console.log url
+  socket = io.connect "#{url}:8001"
   socket.emit('hi', 'hello world')
   worker = spawn_webworker(worker_handler)
   worker.compuciusSend 'salute'
