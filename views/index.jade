@@ -7,8 +7,8 @@ block scripts
   != js('client')
 
 block content
-  if context.user
+  if user
     p
-      h2 Welcome #{context.user.name}!
+      h2 Welcome #{user.name}!
       ul
-        li user/fb id: #{context.user.id}
+        li user/fb id: #{user.id}
