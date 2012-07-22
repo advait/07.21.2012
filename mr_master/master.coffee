@@ -87,7 +87,7 @@ class exports.Master
     @client_pool.pop (client) =>
       console.log "Job #{@job._id}: chunk #{chunk_id} found client".green
       socket = client.socket
-      dc_handler = () ->
+      dc_handler = () =>
         console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
 
         mapChunk chunk_id
@@ -99,7 +99,7 @@ class exports.Master
       socket.on 'map_data_receive', (data) =>
         # Get the shard id from data
         tmp_store = "job:#{@job._id}:chunk:#{chunk_id}:#{data.shard_id}"
-        @redis_client.rpush tmp_store, "[#{data.key}, #{data.value}]"
+        @redis_client.rpush tmp_store, JSON.stringify [data.key, data.value]
 
 
       socket.on 'done_map', (data) =>
@@ -178,11 +178,12 @@ class exports.Master
     @client_pool.pop (client) =>
       console.log "Job #{@job._id}: shard #{shard_id} found client".green
       socket = client.socket
-      dc_handler = () ->
+      dc_handler = () =>
         console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
         shuffleReduceShard shard_id
 
       socket.on 'reduce_data_recieve', (data) =>
+        console.log 'REDUCE DATA REC'.blue, data
         tmp_store = "job:#{@job._id}:result"
         @redis_client.hset tmp_store, data.key, data.value
 
@@ -215,6 +216,7 @@ class exports.Master
     if (@num_shards_done == @job.data.length)
       @redis_client.hgetall "job:#{@job._id}:result", (result) =>
         @job.result = result
+        console.log result
         @job.save()
         @redis_client.del "job:#{@job._id}:result"
         @updateState MRStates.DONE
