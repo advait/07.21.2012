@@ -87,11 +87,11 @@ class exports.Master
     console.log "Job #{@job._id}: chunk #{chunk_id} mapping".blue
     # Allocate a client.
     @client_pool.pop (client) =>
+      console.log "Job #{@job._id}: chunk #{chunk_id} found client".green
       socket = client.socket
-      dc_handler = () ->
+      dc_handler = () =>
         console.log "Client DC: restart mapChunk #{@job._id} > {chunk_id}".red
-
-        mapChunk chunk_id
+        @mapChunk chunk_id
 
       # Delete all previous chunk/sharding keys.
       for i in [0..@job.data.length - 1]
@@ -100,7 +100,7 @@ class exports.Master
       socket.on 'map_data_receive', (data) =>
         # Get the shard id from data
         tmp_store = "job:#{@job._id}:chunk:#{chunk_id}:#{data.shard_id}"
-        @redis_client.rpush tmp_store, "[#{data.key}, #{data.value}]"
+        @redis_client.rpush tmp_store, JSON.stringify [data.key, data.value]
 
 
       socket.on 'done_map', (data) =>
@@ -141,6 +141,7 @@ class exports.Master
 
 
     console.log "PRESHUFFLING DATA!".red
+    num_finished = 0
     for x in [0..(@job.shard_count - 1)]
       @redis_client.del "job:#{@job._id}:shard:#{x}"
       all_values_for_shard = []
@@ -159,28 +160,45 @@ class exports.Master
                 if err?
                   console.log err
                   return
+
+            # Incremented the number finished and move on with that shard if
+            # you can.
+            num_finished += 1
+            if (num_finished < @job.shard_count *  @job.data.length)
+              return
+
+
+            @updateState MRStates.SHUFFLE_REDUCE_DATA
+            @num_shards_done = 0
+            for z in [0..@job.shard_count - 1]
+              @shuffleReduceShard z
+
         func()
 
-    @updateState MRStates.SHUFFLE_REDUCE_DATA
-
-    @num_shards_done = 0
-    for i in [0..@job.shard_count - 1]
-      @shuffleReduceShard i
-
   shuffleReduceShard: (shard_id) ->
+    console.log "Job #{@job._id}: shard #{shard_id} reducing".blue
     @client_pool.pop (client) =>
+      console.log "Job #{@job._id}: shard #{shard_id} found client".green
       socket = client.socket
       dc_handler = () =>
         console.log "Client DC: restart shuffleReduceShard #{@job._id} > {shard_id}".red
         @shuffleReduceShard shard_id
 
       socket.on 'reduce_data_recieve', (data) =>
-        console.log 'one'.red
+        console.log 'REDUCE DATA REC'.blue, data
         tmp_store = "job:#{@job._id}:result"
-        @redis_client.hset tmp_store, data.key, data.value
+        if not @job.results
+          @job.results = []
+        @job.results.push {
+          key: data.key
+          value: data.value
+        }
+        @job.save (err) ->
+          if err?
+            console.log err
 
       socket.on 'done_reduce', (data) =>
-        console.log 'two'.red
+        console.log 'DONE'.red
         @redis_client.del "job:#{@job._id}:shard:#{shard_id}"
         socket.removeListener 'disconnect', dc_handler
         socket.removeAllListeners 'done_reduce'
@@ -202,26 +220,21 @@ class exports.Master
           code: @job.code
           data: shard
         }
-        
+
   shuffleReduceFinish: () ->
     @num_shards_done += 1
 
     @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state, "shards_done": @num_shards_done}
     console.log "Shards finished: #{@num_shards_done}".red
     if (@num_shards_done == @job.data.length)
-      @redis_client.hgetall "job:#{@job._id}:result", (result) =>
-        @job.result = result
-        @job.save()
-        @redis_client.del "job:#{@job._id}:result"
-        @updateState MRStates.DONE
-        @done()
+      @updateState MRStates.DONE
 
 
   done: () ->
 
   updateState: (newState) ->
     @state = newState
-    r_key = "job:{@job._id}:state"
+    r_key = "job:#{@job._id}:state"
     @redis_client.set r_key, @state
     console.log "Job #{@job._id} new state: #{@state}".green
     @redis_client.publish "job:#{@job._id}", JSON.stringify {"state": @state}
