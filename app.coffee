@@ -14,11 +14,7 @@ readymade = require 'readymade'
 mongoose = require 'mongoose'
 
 models = require './models'
-routes = {}
-routes.index = require './routes/index'
-routes.client = require './routes/client'
-routes.developer = require './routes/developer'
-routes.jobs = require './routes/jobs'
+routes = require './routes'
 
 # Connect to the database
 mongoose.connect('mongodb://localhost/compucius')
@@ -28,16 +24,16 @@ redis_client = redis.createClient()
 RedisStore = require('connect-redis')(connect)
 session_store = new RedisStore {client: redis_client}
 
+# Mongo things
+
 # Create server
 app = module.exports = express.createServer()
 
-# Store users and sessions in local memory
-# TODO: MOVE THESE TO REDIS!
-app.users = {}
-
 # Setup everyauth facbeook
-#em = everyauth.everymodule
-#everyauth.everymodule.userPkey('_id')
+em = everyauth.everymodule
+em.findUserById (uid, callback) ->
+  console.log "FINDUSER".blue, uid
+  models.User.findById uid, callback
 fb = everyauth.facebook
 fb.appId '422148541157960'
 fb.appSecret '8e5f5afc2d8a3eacd20604b4c6047442'
@@ -58,8 +54,8 @@ fb.findOrCreateUser (session, accessToken, accessTokExtra, fbUserMetadata) ->
   models.User.findById Number(fbUserMetadata.id), (err, user) ->
     if user
       # User found
-      console.log 'found'.green
-      return promise.fulfill user
+      console.log 'USER FOUND'.green, user
+      promise.fulfill user
     else
       # Insert user
       new_user = new models.User (
@@ -72,8 +68,8 @@ fb.findOrCreateUser (session, accessToken, accessTokExtra, fbUserMetadata) ->
       new_user.save (err) ->
         if !err
           # User add success
-          console.log 'made'.green
-          return promise.fulfill new_user
+          console.log 'USER INSERTED'.green, user
+          promise.fulfill new_user
         else
           console.log 'could not add user'.red
   return promise
@@ -86,9 +82,6 @@ app.configure ->
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'jade'
   app.set 'view options', {layout: false}
-  # For auto-compiling LESS
-  app.use readymade.middleware (root: 'public')
-
   # Middleware
   app.use express.favicon()
   app.use express.logger('dev')
@@ -98,8 +91,9 @@ app.configure ->
   app.use express.session {store: session_store, secret: 'GREYLOCKu!'}
   app.use everyauth.middleware()
   app.use app.router
+  app.use express.static(__dirname + '/assets')
+  app.use readymade.middleware (root: 'public')
   app.use connect_assets()  # Serve compiled assets
-  #app.use express.static(__dirname + '/public')
 
 # Add everyauth view helpers
 everyauth.helpExpress app
@@ -111,10 +105,10 @@ app.configure 'production', ->
   app.use express.errorHandler()
 
 # Routes
-app.get '/', routes.index.index
-app.get '/client', routes.client.index
-app.get '/developer', routes.developer.index
-app.get '/jobs/:job_id', routes.jobs.index
+app.get '/', routes.index
+app.get '/client', routes.client
+app.get '/jobs', routes.jobs
+app.get '/status/:job_id', routes.status
 
 # Setup web server
 app.listen 8000, ->

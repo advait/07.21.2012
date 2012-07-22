@@ -3,6 +3,9 @@
 
 extends layout
 
+block scripts
+  != js('client')
+
 block content
   div.container
     div.row
@@ -11,3 +14,8 @@ block content
           h1 Compucius say do more
           p Javascript mapreduce
           button#play-button.btn.btn-large.btn-primary Launch Worker
+  if user
+    p
+      h2 Welcome #{user.name}!
+      ul
+        li user/fb id: #{user.id}
