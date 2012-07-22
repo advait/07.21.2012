@@ -1,3 +1,5 @@
+#= require './util.coffee'
+
 # global socket object
 socket = null
 
@@ -34,7 +36,7 @@ worker_handler =
 
 $ ->
   console.log "Hello world"
-  socket = io.connect 'http://local.host:8001'
+  socket = io.connect getSocketServerURL()
   socket.emit('hi', 'hello world')
   worker = spawn_webworker(worker_handler)
   worker.compuciusSend 'salute'

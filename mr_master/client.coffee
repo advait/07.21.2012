@@ -7,9 +7,6 @@ ClientStates =
   FREE: 1
 
 class exports.Client
-
-  # Args:
-  
   constructor: (socket, userId) ->
     @socket = socket
     @user_id = userId
@@ -18,7 +15,6 @@ class exports.Client
 
 # The Client pool will wrap around an array
 class exports.ClientPool
-
   constructor: () ->
     @clients = []
     @clients.remove = (e) -> @[t..t] = [] if (t = @indexOf(e)) > -1

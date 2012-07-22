@@ -9,7 +9,7 @@ html
     != css('bootstrap.min')
     != css('bootstrap-responsive.min')
     != css('style')
-    != js('http://local.host:8000/socket.io/socket.io')
+    script(src='/socket.io/socket.io.js')
     != js('jquery-1.7.2.min')
     != js('client')
     != js('webworker')

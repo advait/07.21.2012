@@ -1,3 +1,5 @@
+#= require './util.coffee'
+
 $ ->
   states = {}
   $('.knob').knob()
@@ -5,7 +7,7 @@ $ ->
     item = $(item)
     id = $(item).attr('id')
     knob = $('#'+id+' .knob')
-    socket = io.connect 'http://local.host:8000'
+    socket = io.connect getSocketServerURL()
     socket.emit 'watch job', id
     socket.on id, (data) ->
       states = JSON.parse data
