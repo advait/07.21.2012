@@ -10,6 +10,7 @@ express = require 'express'
 http = require 'http'
 io = require 'socket.io'
 routes = require './routes'
+readymade = require 'readymade'
 
 
 # Create server
@@ -55,6 +56,9 @@ app.configure ->
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'jade'
   app.set 'view options', {layout: false}
+  # For auto-compiling LESS
+  app.use readymade.middleware (root: 'public')
+
   # Middleware
   app.use express.favicon()
   app.use express.logger('dev')
