@@ -23,6 +23,10 @@ exports.Job = mongoose.model 'Job', new mongoose.Schema(
   data: [
     type: String
   ]
+  
+  data_type:
+    type: String
+    enum: ['json', 'text']
 
   shard_count:
     type: Number
