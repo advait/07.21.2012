@@ -1,12 +1,18 @@
-h1= title
-p Welcome to #{title}
-if user
-  p
-    h2 Welcome #{user.name}!
-    ul
-      li user/fb id: #{user.id}
-      li user: #{user}
-  p
-    a(href="/logout") Logout
-else
-  a(href='/auth/facebook') Login
+// index.jade
+// Copyright 2012 Compucius
+
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  if user
+    p
+      h2 Welcome #{user.name}!
+      ul
+        li user/fb id: #{user.id}
+        li user: #{user}
+    p
+      a(href="/logout") Logout
+  else
+    a(href='/auth/facebook') Login

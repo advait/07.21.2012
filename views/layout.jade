@@ -1,9 +1,39 @@
+// layout.jade
+// Base layout for everything!
+// Copyright 2012 Compucius
 doctype 5
 html
   head
-    title= title
-    script(src='/socket.io/socket.io.js')
+    title= 'Compucius - ' + title
+    != css('bootstrap.min')
+    != css('bootstrap-responsive.min')
     != css('style')
-    != js('/js/jquery-1.7.2.min.js')
-    != js('/js/client.js')
-  body!= body
+    != js('http://local.host:8000/socket.io/socket.io')
+    != js('jquery-1.7.2.min')
+    != js('bootstrap.min')
+    != js('client')
+  body
+    // Navbar
+    div.navbar.navbar-fixed-top
+      div.navbar-inner
+        div.container
+          button.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.brand(href="/") Compucius
+          div.nav-collapse.collapse
+            ul.nav.pull-left
+              li
+                a(href="/") Dashboard
+              li
+                a(href="/client") Client
+              li
+                a(href="/dev") Developer
+            ul.nav.pull-right
+              li
+                a Hello, steven!
+
+    // Content
+    div.container
+      block content
