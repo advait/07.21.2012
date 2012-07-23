@@ -48,7 +48,7 @@ $ ->
             item.children('.state').text('done')
             knob.trigger 'configure',
               'max': '100'
-              'fgColor': 'chartreuse'
+              'fgColor': 'yellowgreen'
 
       # Increment value
       else
