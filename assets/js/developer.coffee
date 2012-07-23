@@ -25,7 +25,7 @@ $ ->
             knob.val 0
             knob.trigger 'configure',
               'max': states.chunk_total
-              'fgColor': 'purple'
+              'fgColor': 'darkorchid'
 
           # Pre shuffle phase
           when 3
@@ -33,7 +33,7 @@ $ ->
             knob.val 10
             knob.trigger 'configure',
               'max': 10
-              'fgColor': 'orange'
+              'fgColor': 'darkorange'
 
           # Reduce phase
           when 4
@@ -41,14 +41,14 @@ $ ->
             knob.val 0
             knob.trigger 'configure',
               'max': states.shard_total
-              'fgColor': 'blue'
+              'fgColor': 'cornflowerblue'
 
           # Done
           when 5
             item.children('.state').text('done')
             knob.trigger 'configure',
               'max': '100'
-              'fgColor': 'green'
+              'fgColor': 'chartreuse'
 
       # Increment value
       else
